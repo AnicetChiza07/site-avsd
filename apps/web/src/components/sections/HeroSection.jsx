@@ -2,10 +2,10 @@ import Button from '../ui/Button';
 
 // Import des images via Vite (les chemins sont relatifs à ce fichier)
 import bgImg from '../../assets/images/Hero/bg.jpg'; 
-import people from "../../assets/images/Statistique/people.jpg";
-import children from "../../assets/images/Statistique/children.jpg";
-import childInNeed from '../../assets/images/Statistique/child-in-need.jpg';
-import peopleInNeed from "../../assets/images/Statistique/people-in-need.jpg";
+import people from "../../assets/images/Statistiques/people.jpg";
+import children from "../../assets/images/Statistiques/children.jpg";
+import childInNeed from '../../assets/images/Statistiques/child-in-need.jpg';
+import peopleInNeed from "../../assets/images/Statistiques/people-in-need.jpg";
 
 const HeroSection = () => {
     return (
