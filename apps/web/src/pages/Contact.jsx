@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { MessageCircle, Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
-import bgImage from '../assets/images/hero/bg.jpg';
+import bgImage from '../assets/images/Hero/bg.jpg';
 import api from '../services/api';
 
 const Contact = () => {

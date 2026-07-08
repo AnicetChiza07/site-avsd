@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { NotebookPen, ArrowRight, TrendingUp } from 'lucide-react';
-import bgImg from '../../assets/images/hero/bg.jpg';
+import bgImg from '../../assets/images/Hero/bg.jpg';
 import articleService from '../../services/articleService';
 
 const CTASection = () => {
