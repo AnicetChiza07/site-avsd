@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../components/layout/AdminLayout';
 import partnerService from '../services/partnerService';
+import { getBaseUrl } from '../services/api';
 
 const Partners = () => {
     const [partners, setPartners] = useState([]);
@@ -62,7 +63,7 @@ const Partners = () => {
         setEditingPartner(partner);
         setFormData({ order: partner.order.toString() });
         setImageFile(null);
-        setImagePreview(`http://localhost:5000${partner.image}`);
+        setImagePreview(`${getBaseUrl()}${partner.image}`);
         setIsModalOpen(true);
     };
 
@@ -172,7 +173,7 @@ const Partners = () => {
                             >
                                 <div className="h-32 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
                                     <img 
-                                        src={`http://localhost:5000${partner.image}`} 
+                                        src={`${getBaseUrl()}${partner.image}`} 
                                         alt="Partenaire" 
                                         className="max-w-full max-h-full object-contain"
                                     />

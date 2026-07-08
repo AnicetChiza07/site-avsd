@@ -13,6 +13,7 @@ import AdminLayout from '../components/layout/AdminLayout';
 import articleService from '../services/articleService';
 import categoryService from '../services/categoryService';
 import RichTextEditor from '../components/common/RichTextEditor';
+import { getBaseUrl } from '../services/api';
 
 // Fonction pour vérifier si le contenu est vide
 const isContentEmpty = (content) => {
@@ -136,7 +137,7 @@ const Articles = () => {
             });
             setImageFile(null);
             setImagePreview(data.image 
-                ? (data.image.startsWith('http') ? data.image : `http://localhost:5000${data.image}`)
+                ? (data.image.startsWith('http') ? data.image : `${getBaseUrl()}${data.image}`)
                 : null
             );
             setIsFormModalOpen(true);
@@ -323,7 +324,7 @@ const Articles = () => {
                                                 <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
                                                     <img 
                                                         src={article.image 
-                                                            ? (article.image.startsWith('http') ? article.image : `http://localhost:5000${article.image}`)
+                                                            ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`)
                                                             : '/placeholder.jpg'
                                                         } 
                                                         alt={article.title} 

@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, Tag, ArrowUpRight, ChevronLeft, Quote } from 'lucide-react';
 import articleService from '../services/articleService';
 import SkeletonText from '../components/ui/SkeletonText';
+import { getBaseUrl } from '../services/api';
 
 const ArticleDetail = () => {
     const { slug } = useParams();
@@ -100,7 +101,7 @@ const ArticleDetail = () => {
             {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img src={article.image ? (article.image.startsWith('http') ? article.image : `http://localhost:5000${article.image}`) : '/placeholder.jpg'} alt={article.title} className="w-full h-full object-cover" />
+                    <img src={article.image ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`) : '/placeholder.jpg'} alt={article.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
                 </div>
                 <div className="container relative z-10 flex flex-col justify-center h-full py-20">
@@ -199,7 +200,7 @@ const ArticleDetail = () => {
                                         >
                                             <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
                                                 <img 
-                                                    src={recentArticle.image ? (recentArticle.image.startsWith('http') ? recentArticle.image : `http://localhost:5000${recentArticle.image}`) : '/placeholder.jpg'} 
+                                                    src={recentArticle.image ? (recentArticle.image.startsWith('http') ? recentArticle.image : `${getBaseUrl()}${recentArticle.image}`) : '/placeholder.jpg'} 
                                                     alt={recentArticle.title} 
                                                     className="w-full h-full object-cover"
                                                 />

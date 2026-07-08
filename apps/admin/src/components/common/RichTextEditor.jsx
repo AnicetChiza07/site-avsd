@@ -10,7 +10,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import Heading from '@tiptap/extension-heading';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
-import api from '../../services/api';
+import api, { getBaseUrl } from '../../services/api';
 import {
     Bold, Italic, Strikethrough,
     Heading2, Heading3, List, ListOrdered,
@@ -90,7 +90,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Écrivez votre contenu
                     // Construire l'URL complète
                     const imageUrl = response.data.url.startsWith('http') 
                         ? response.data.url 
-                        : `http://localhost:5000${response.data.url}`;
+                        : `${getBaseUrl()}${response.data.url}`;
                     
                     // Insérer l'image dans l'éditeur
                     editor.chain().focus().setImage({ src: imageUrl }).run();

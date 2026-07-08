@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { MessageCircle, Mail, Phone, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
 import bgImage from '../assets/images/hero/bg.jpg';
+import api from '../services/api';
 
 const Contact = () => {
     const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ const Contact = () => {
         
         try {
             // Envoi réel vers le backend
-            await axios.post('http://localhost:5000/api/contacts', {
+            await api.post('/contacts', {
                 name: formData.name,
                 email: formData.email,
                 subject: formData.subject,

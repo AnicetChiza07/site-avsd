@@ -6,6 +6,7 @@ import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonCard from '../components/ui/SkeletonCard';
 import bgImage from '../assets/images/Caroussel/thirdCarrous.jpg';
 import opportunityService from '../services/opportunityService';
+import { getBaseUrl } from '../services/api';
 
 const Opportunites = () => {
     const [opportunities, setOpportunities] = useState([]);
@@ -71,7 +72,7 @@ const Opportunites = () => {
     const handleDownload = async (fileUrl, fileName) => {
         if (!fileUrl) return;
 
-        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `http://localhost:5000${fileUrl}`;
+        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `${getBaseUrl()}${fileUrl}`;
 
         try {
             const response = await fetch(fullUrl);
@@ -171,7 +172,7 @@ const Opportunites = () => {
                                         <div className="relative h-56 overflow-hidden">
                                             <img 
                                                 src={opportunity.image 
-                                                    ? (opportunity.image.startsWith('http') ? opportunity.image : `http://localhost:5000${opportunity.image}`)
+                                                    ? (opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`)
                                                     : '/placeholder.jpg'
                                                 } 
                                                 alt={opportunity.title} 

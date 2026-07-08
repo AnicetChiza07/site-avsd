@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import partnerService from '../../services/partnerService';
 import SectionTitle from '../ui/SectionTitle';
+import { getBaseUrl } from '../../services/api';
 
 const PartnersSection = () => {
     const [partners, setPartners] = useState([]);
@@ -64,7 +65,7 @@ const PartnersSection = () => {
                                 className="flex-shrink-0 w-[180px] h-[100px] sm:w-[180px] sm:h-[100px] flex items-center justify-center"
                             >
                                 <img
-                                    src={`http://localhost:5000${partner.image}`}
+                                    src={`${getBaseUrl()}${partner.image}`}
                                     alt={`Partenaire ${index + 1}`}
                                     className="max-w-full max-h-full object-contain transition-all duration-300 hover:scale-110"
                                 />

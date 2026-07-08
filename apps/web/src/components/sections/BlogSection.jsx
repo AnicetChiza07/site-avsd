@@ -4,6 +4,7 @@ import { ArrowUpRight, Calendar, Clock } from 'lucide-react';
 import SectionTitle from '../ui/SectionTitle';
 import SkeletonCard from '../ui/SkeletonCard';
 import articleService from '../../services/articleService';
+import { getBaseUrl } from '../../services/api';
 
 const BlogSection = () => {
     const [articles, setArticles] = useState([]);
@@ -82,7 +83,7 @@ const BlogSection = () => {
                                     <div className="relative h-64 overflow-hidden">
                                         <img
                                             src={article.image 
-                                                ? (article.image.startsWith('http') ? article.image : `http://localhost:5000${article.image}`)
+                                                ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`)
                                                 : '/placeholder.jpg'}
                                             alt={article.title}
                                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"

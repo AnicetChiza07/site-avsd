@@ -5,6 +5,7 @@ import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonGallery from '../components/ui/SkeletonGallery';
 import bgImage from '../assets/images/Caroussel/thirdCarrous.jpg';
 import galleryService from '../services/galleryService';
+import { getBaseUrl } from '../services/api';
 
 const Gallery = () => {
     const [allImages, setAllImages] = useState([]);
@@ -201,7 +202,7 @@ const Gallery = () => {
                                 >
                                     <div className="relative overflow-hidden">
                                         <img 
-                                            src={img.image.startsWith('http') ? img.image : `http://localhost:5000${img.image}`}
+                                            src={img.image.startsWith('http') ? img.image : `${getBaseUrl()}${img.image}`}
                                             alt={img.title}
                                             className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
                                         />
@@ -261,7 +262,7 @@ const Gallery = () => {
                         onClick={(e) => e.stopPropagation()}
                     >
                         <img 
-                            src={lightboxImage.image.startsWith('http') ? lightboxImage.image : `http://localhost:5000${lightboxImage.image}`}
+                            src={lightboxImage.image.startsWith('http') ? lightboxImage.image : `${getBaseUrl()}${lightboxImage.image}`}
                             alt={lightboxImage.title}
                             className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                         />

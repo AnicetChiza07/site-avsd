@@ -5,6 +5,7 @@ import {
     ExternalLink, CheckCircle, Clock, AlertCircle 
 } from 'lucide-react';
 import opportunityService from '../services/opportunityService';
+import { getBaseUrl } from '../services/api';
 
 const OpportunityDetail = () => {
     const { id } = useParams();
@@ -40,7 +41,7 @@ const OpportunityDetail = () => {
 
     const handleDownload = async (fileUrl, fileName) => {
         if (!fileUrl) return;
-        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `http://localhost:5000${fileUrl}`;
+        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `${getBaseUrl()}${fileUrl}`;
         try {
             const response = await fetch(fullUrl);
             if (!response.ok) throw new Error('Erreur lors du téléchargement');
@@ -100,7 +101,7 @@ const OpportunityDetail = () => {
                 <div className="absolute inset-0 z-0">
                     <img 
                         src={opportunity.image 
-                            ? (opportunity.image.startsWith('http') ? opportunity.image : `http://localhost:5000${opportunity.image}`) 
+                            ? (opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`) 
                             : '/placeholder.jpg'} 
                         alt={opportunity.title} 
                         className="w-full h-full object-cover" 
@@ -175,7 +176,7 @@ const OpportunityDetail = () => {
                                 {opportunity.image && (
                                     <div className="relative rounded-2xl overflow-hidden shadow-xl border border-gray-200 group">
                                         <img 
-                                            src={opportunity.image.startsWith('http') ? opportunity.image : `http://localhost:5000${opportunity.image}`} 
+                                            src={opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`} 
                                             alt={opportunity.title} 
                                             className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                                         />

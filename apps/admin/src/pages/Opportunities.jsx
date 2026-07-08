@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../components/layout/AdminLayout';
 import opportunityService from '../services/opportunityService';
+import { getBaseUrl } from '../services/api';
 
 const Opportunities = () => {
     // États principaux
@@ -157,7 +158,7 @@ const Opportunities = () => {
             // NOUVEAU : Charger l'image existante
             setImageFile(null);
             setImagePreview(data.image 
-                ? (data.image.startsWith('http') ? data.image : `http://localhost:5000${data.image}`)
+                ? (data.image.startsWith('http') ? data.image : `${getBaseUrl()}${data.image}`)
                 : null
             );
             setIsFormModalOpen(true);
@@ -384,7 +385,7 @@ const Opportunities = () => {
                                                     {opp.image ? (
                                                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
                                                             <img 
-                                                                src={opp.image.startsWith('http') ? opp.image : `http://localhost:5000${opp.image}`} 
+                                                                src={opp.image.startsWith('http') ? opp.image : `${getBaseUrl()}${opp.image}`} 
                                                                 alt={opp.title} 
                                                                 className="w-full h-full object-cover"
                                                             />

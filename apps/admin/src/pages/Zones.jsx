@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../components/layout/AdminLayout';
 import zoneService from '../services/zoneService';
+import { getBaseUrl } from '../services/api';
 
 const Zones = () => {
     // États principaux
@@ -88,7 +89,7 @@ const Zones = () => {
             order: zone.order.toString()
         });
         setImageFile(null);
-        setImagePreview(`http://localhost:5000${zone.image}`);
+        setImagePreview(`${getBaseUrl()}${zone.image}`);
         setIsModalOpen(true);
     };
 
@@ -230,7 +231,7 @@ const Zones = () => {
                             >
                                 <div className="h-48 overflow-hidden bg-gray-100">
                                     <img 
-                                        src={`http://localhost:5000${zone.image}`} 
+                                        src={`${getBaseUrl()}${zone.image}`} 
                                         alt={zone.title} 
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />

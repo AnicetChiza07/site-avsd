@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import SectionTitle from '../ui/SectionTitle';
 import SkeletonImage from '../ui/SkeletonImage';
 import zoneService from '../../services/zoneService';
+import { getBaseUrl } from '../../services/api';
 
 const ZonesInterventionSection = () => {
     const [zones, setZones] = useState([]);
@@ -172,7 +173,7 @@ const ZonesInterventionSection = () => {
                                 <div key={zone._id} className="flex-shrink-0 px-2" style={{ width: `${100 / slidesPerView}%` }}>
                                     <div className="relative group overflow-hidden rounded-xl h-[400px]">
                                         <img
-                                            src={zone.image ? `http://localhost:5000${zone.image}` : '/placeholder.jpg'}
+                                            src={zone.image ? `${getBaseUrl()}${zone.image}` : '/placeholder.jpg'}
                                             alt={zone.name}
                                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                         />

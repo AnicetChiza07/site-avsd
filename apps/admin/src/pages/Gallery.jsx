@@ -11,6 +11,7 @@ import {
 import AdminLayout from '../components/layout/AdminLayout';
 import galleryService from '../services/galleryService';
 import galleryCategoryService from '../services/galleryCategoryService';
+import { getBaseUrl } from '../services/api';
 
 const Gallery = () => {
     // États principaux
@@ -235,7 +236,7 @@ const Gallery = () => {
             category: image.category?._id || ''
         });
         setImageFile(null);
-        setImagePreview(image.image ? `http://localhost:5000${image.image}` : null);
+        setImagePreview(image.image ? `${getBaseUrl()}${image.image}` : null);
         setIsEditImageModalOpen(true);
     };
 
@@ -421,7 +422,7 @@ const Gallery = () => {
                             >
                                 <div className="aspect-square overflow-hidden bg-gray-100">
                                     <img 
-                                        src={img.image ? `http://localhost:5000${img.image}` : '/placeholder.jpg'} 
+                                        src={img.image ? `${getBaseUrl()}${img.image}` : '/placeholder.jpg'} 
                                         alt={img.title} 
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     />
@@ -673,7 +674,7 @@ const Gallery = () => {
                                                     <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
                                                     <button 
                                                         type="button"
-                                                        onClick={() => { setImageFile(null); setImagePreview(editingImage.image ? `http://localhost:5000${editingImage.image}` : null); }}
+                                                        onClick={() => { setImageFile(null); setImagePreview(editingImage.image ? `${getBaseUrl()}${editingImage.image}` : null); }}
                                                         className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                                                     >
                                                         <X className="w-3.5 h-3.5" />
