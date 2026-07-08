@@ -1,11 +1,8 @@
 import Button from '../ui/Button';
+import { Users, UserCheck, Heart, HandHelping } from 'lucide-react';
 
 // Import des images via Vite (les chemins sont relatifs à ce fichier)
 import bgImg from '../../assets/images/Hero/bg.jpg'; 
-import people from "../../assets/images/Statistiques/people.jpg";
-import children from "../../assets/images/Statistiques/children.jpg";
-import childInNeed from '../../assets/images/Statistiques/child-in-need.jpg';
-import peopleInNeed from "../../assets/images/Statistiques/people-in-need.jpg";
 
 const HeroSection = () => {
     return (
@@ -27,17 +24,25 @@ const HeroSection = () => {
                 
                 {/* Badge Statistique (Glassmorphism) */}
                 <div className="flex items-center justify-center w-fit gap-2.5 text-[15px] rounded border border-white/20 bg-white/10 backdrop-blur-sm py-2 px-6 pl-2">
-                <div className="flex">
-                    <img src={people} alt="" className="w-9 h-9 object-cover rounded-full border border-white/80" />
-                    <img src={children} alt="" className="w-9 h-9 object-cover rounded-full border border-white/80 -ml-2.5" />
-                    <img src={childInNeed} alt="" className="w-9 h-9 object-cover rounded-full border border-white/80 -ml-2.5" />
-                    <img src={peopleInNeed} alt="" className="w-9 h-9 object-cover rounded-full border border-white/80 -ml-2.5" />
-                </div>
-                <div className="w-9 h-9 flex items-center justify-center rounded-full -ml-5 text-white bg-brand-blue border border-white/80 font-bold">
-                    <span>5K</span>
-                </div>
-                {/* Le texte "Bénéficiaires" est masqué sur mobile pour gagner de la place */}
-                <p className="text-white/60 hidden sm:block">Bénéficiaires</p>
+                    <div className="flex">
+                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80">
+                            <Users className="w-5 h-5 text-brand-blue" />
+                        </div>
+                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80 -ml-2.5">
+                            <UserCheck className="w-5 h-5 text-brand-blue" />
+                        </div>
+                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80 -ml-2.5">
+                            <Heart className="w-5 h-5 text-brand-blue" />
+                        </div>
+                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80 -ml-2.5">
+                            <HandHelping className="w-5 h-5 text-brand-blue" />
+                        </div>
+                    </div>
+                    <div className="w-9 h-9 flex items-center justify-center rounded-full -ml-5 text-white bg-brand-blue border border-white/80 font-bold">
+                        <span>5K</span>
+                    </div>
+                    {/* Le texte "Bénéficiaires" est masqué sur mobile pour gagner de la place */}
+                    <p className="text-white/60 hidden sm:block">Bénéficiaires</p>
                 </div>
 
                 {/* Titre et Description */}
