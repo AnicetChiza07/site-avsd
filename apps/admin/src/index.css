@@ -1,0 +1,241 @@
+/* 1. Importation de Tailwind v4 */
+@import "tailwindcss";
+
+/* 2. Configuration de Tailwind v4 (Couleurs, Polices, Animations) */
+@theme {
+    /* Tes couleurs de marque */
+    --color-brand-blue: #1c4294;
+    --color-brand-light: #bdc5d7;
+    --color-brand-gold: #fbbf24;
+    
+    /* Ta police */
+    --font-body: 'DM Sans', sans-serif;
+    --font-heading: 'DM Sans', sans-serif;
+    
+    /* Animation de zoom (si nécessaire) */
+    --animate-zoom-bg: zoom-bg 15s ease-in-out infinite alternate;
+}
+
+/* 3. Styles de base */
+body {
+    font-family: var(--font-body);
+    background-color: #f3f4f6;
+}
+
+/* Effet de lueur bleue en bas de page */
+body::before {
+    content: '';
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 750px;
+    height: 750px;
+    border-radius: 50%;
+    background: white;
+    opacity: 0.3;
+    filter: blur(60px);
+    z-index: -1; 
+    pointer-events: none;
+}
+
+/* Effet de motif de lignes diagonales sur toute la page */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        #4d4d4d09 0px,
+        #4d4d4d09 1px,
+        transparent 1px,
+        transparent 25px
+    );
+    background-size: 50px 50px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* 4. Container standard */
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+@media (min-width: 640px) {
+    .container {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .container {
+        padding: 0 2rem;
+    }
+}
+
+/* ===========================================
+   STYLES POUR L'ÉDITEUR TIPTAP
+   =========================================== */
+
+.tiptap {
+    min-height: 300px;
+    padding: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #1f2937;
+}
+
+.tiptap:focus {
+    outline: none;
+}
+
+.tiptap p {
+    margin-bottom: 0.75rem;
+}
+
+.tiptap h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #111827;
+}
+
+.tiptap h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #1f2937;
+}
+
+.tiptap ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tiptap ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.tiptap li {
+    margin-bottom: 0.25rem;
+}
+
+.tiptap blockquote {
+    border-left: 4px solid #1c4294;
+    padding-left: 1rem;
+    margin: 1rem 0;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.tiptap code {
+    background-color: #f3f4f6;
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.tiptap pre {
+    background-color: #1f2937;
+    color: #f9fafb;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+}
+
+.tiptap pre code {
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
+.tiptap a {
+    color: #1c4294;
+    text-decoration: underline;
+    font-weight: 500;
+}
+
+.tiptap a:hover {
+    color: #1e3a8a;
+}
+
+.tiptap img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+.tiptap hr {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 1.5rem 0;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #9ca3af;
+    pointer-events: none;
+    height: 0;
+    font-style: italic;
+}
+
+/* =========================================== */
+/* SCROLLBAR ULTRA-MINIMALISTE - SIDEBAR       */
+/* =========================================== */
+
+/* Cible spécifique : le nav dans la sidebar */
+aside nav {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(255, 255, 255, 0.178) transparent !important;
+}
+
+aside nav::-webkit-scrollbar {
+    width: 2px !important;
+    height: 2px !important;
+}
+
+/* Supprimer complètement les boutons de défilement */
+aside nav::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+aside nav::-webkit-scrollbar-track {
+    background: transparent !important;
+    border: none !important;
+}
+
+aside nav::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-radius: 2px !important;
+    border: none !important;
+}
+
+/* Hover très subtil (5% seulement) */
+aside nav:hover::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Firefox */
+aside nav:hover {
+    scrollbar-color: rgba(255, 255, 255, 0.048) transparent !important;
+}
+
+::-webkit-scrollbar-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}

@@ -1,0 +1,76 @@
+# ===========================================
+# DÉPENDANCES
+# ===========================================
+node_modules/
+*/node_modules/
+apps/*/node_modules/
+
+# ===========================================
+# VARIABLES D'ENVIRONNEMENT (JAMAIS COMMITTER !)
+# ===========================================
+.env
+.env.local
+.env.production
+*/.env
+*/.env.local
+apps/*/.env
+apps/*/.env.local
+
+# ===========================================
+# FICHIERS UPLOADÉS (ne pas committer les images/PDF)
+# ===========================================
+uploads/
+*/uploads/
+apps/api/uploads/
+
+# ===========================================
+# BUILDS ET DIST
+# ===========================================
+dist/
+build/
+*/dist/
+*/build/
+apps/web/dist/
+apps/admin/dist/
+
+# ===========================================
+# LOGS
+# ===========================================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+*.log
+
+# ===========================================
+# ÉDITEURS ET OS
+# ===========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# ===========================================
+# COVERAGE ET TESTS
+# ===========================================
+coverage/
+.nyc_output/
+
+# ===========================================
+# AUTRES
+# ===========================================
+*.tgz
+.cache
+.temp
+.vercel
+.netlify
+
+# ===========================================
+# FICHIERS TEMPORAIRES
+# ===========================================
+*.tmp
+*.temp

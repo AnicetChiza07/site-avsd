@@ -1,0 +1,388 @@
+/* 1. Importation de Tailwind v4 */
+@import "tailwindcss";
+
+/* 2. Configuration de Tailwind v4 (Couleurs, Polices, Animations) */
+@theme {
+    /* Tes couleurs de marque */
+    --color-brand-blue: #1c4294;
+    --color-brand-light: #bdc5d7;
+    
+    /* Tes polices personnalisées */
+    --font-heading: 'NexaHeavy', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    
+    /* Ton animation de zoom */
+    --animate-zoom-bg: zoomBg 15s ease-in-out infinite alternate;
+}
+
+/* 3. Définition des Keyframes pour l'animation */
+@keyframes zoomBg {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.2); }
+}
+
+/* 4. Importation des polices personnalisées */
+@font-face {
+    font-family: 'NexaBold';
+    src: url('./assets/fonts/NexaBold.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'NexaHeavy';
+    src: url('./assets/fonts/Nexa-Heavy.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* 5. Typographie globale (Titres) */
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+}
+
+/* 6. Ton Container personnalisé */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: clamp(16px, 4vw, 25px);
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 50px; /* À ajuster selon la hauteur de ton header fixe */
+}
+
+/* 7. Corps de la page et effets d'arrière-plan globaux */
+body {
+    padding: 0;
+    font-family: var(--font-body);
+    background-color: #ffffff; 
+    color: #333333; 
+}
+
+/* Effet de lueur bleue en bas de page */
+body::before {
+    content: '';
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 750px;
+    height: 750px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #1c4294 0%, transparent 100%);
+    opacity: 0.3;
+    filter: blur(60px);
+    z-index: -1; 
+    pointer-events: none;
+}
+
+/* Effet de motif de lignes diagonales sur toute la page */
+body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+        45deg,
+        #4d4d4d09 0px,
+        #4d4d4d09 1px,
+        transparent 1px,
+        transparent 25px
+    );
+    background-size: 50px 50px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Animation de défilement infini pour les logos partenaires */
+@keyframes scroll-logos {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-logos {
+  animation: scroll-logos 30s linear infinite;
+}
+
+/* Masque pour créer un fondu sur les bords gauche et droit */
+.mask-fade-edges {
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 15%,
+    black 85%,
+    transparent 100%
+  );
+}
+
+/* Animation pulse pour les titres de section */
+@keyframes pulse-me {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.6;
+    }
+    70% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+.animate-pulse-me {
+    animation: pulse-me 1.8s infinite;
+}
+
+/* Animation pulse pour les icônes de mission */
+@keyframes pulse-mes {
+    0% {
+        transform: scale(0.5);
+        opacity: 0.6;
+    }
+    70% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1.4);
+        opacity: 0;
+    }
+}
+
+.animate-pulse-mes {
+    animation: pulse-mes 1.8s infinite;
+}
+
+/* Animation d'apparition pour les zones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animation Shimmer pour les Skeleton Loaders */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 2s infinite linear;
+    background: linear-gradient(
+        to right,
+        #f1f5f9 4%,   /* slate-100 */
+        #e2e8f0 25%,  /* slate-200 */
+        #f1f5f9 36%   /* slate-100 */
+    );
+    background-size: 200% 100%;
+}
+
+/* Animations pour PageBanner */
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Styles pour le contenu des articles */
+.prose {
+    color: #374151;
+    line-height: 1.75;
+}
+
+.prose h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    color: #111827;
+}
+
+.prose h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    color: #111827;
+}
+
+.prose p {
+    margin-bottom: 1.5rem;
+    color: #374151;
+    line-height: 1.75;
+}
+
+.prose blockquote {
+    border-left: 4px solid #1c4294;
+    padding: 1rem 1.5rem;
+    margin: 2rem 0;
+    background-color: rgba(28, 66, 148, 0.05);
+    border-radius: 0 0.5rem 0.5rem 0;
+    font-style: italic;
+    color: #1f2937;
+}
+
+.prose blockquote p {
+    margin: 0;
+}
+
+.prose a {
+    color: #1c4294;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.prose a:hover {
+    text-decoration: underline;
+}
+
+.prose ul, .prose ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+.prose li {
+    margin-bottom: 0.5rem;
+}
+
+.prose img {
+    width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+    margin: 2rem 0;
+}
+
+.prose strong {
+    font-weight: 700;
+    color: #111827;
+}
+
+.prose em {
+    font-style: italic;
+}
+
+/* =========================================== */
+/* CACHER HEADER ET FOOTER QUAND LA LIGHTBOX EST OUVERTE */
+/* =========================================== */
+body.lightbox-open header,
+body.lightbox-open footer {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+}
+
+/* =========================================== */
+/* CACHER LA SCROLLBAR POUR LE SCROLL HORIZONTAL */
+/* =========================================== */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Chrome, Safari and Opera */
+}
+
+/* =========================================== */
+/* ANIMATION FADEIN POUR LA LIGHTBOX */
+/* =========================================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* =========================================== */
+/* ANIMATION FADEINUP POUR LES IMAGES */
+/* =========================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* =========================================== */
+/* ANIMATION SHIMMER POUR SKELETON */
+/* =========================================== */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 1.5s infinite;
+}
+
+/* =========================================== */
+/* ANIMATION SHIMMER POUR SKELETON */
+/* =========================================== */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.animate-shimmer {
+    animation: shimmer 1.5s infinite;
+}
