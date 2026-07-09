@@ -13,6 +13,7 @@ dotenv.config({ path: envPath });
 
 const Article = (await import('../src/models/Article.js')).default;
 
+// Fonction pour uploader une image locale vers Cloudinary
 const uploadImageToCloudinary = async (imagePath) => {
     try {
         const fullPath = path.join(__dirname, '..', imagePath);
@@ -34,33 +35,55 @@ const uploadImageToCloudinary = async (imagePath) => {
     }
 };
 
+// Fonction pour traiter le contenu HTML d'un article
 const processArticleContent = async (content) => {
     if (!content) return content;
     
-    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/g;
-    let match;
     let updatedContent = content;
+    let hasChanges = false;
     
-    while ((match = imgRegex.exec(content)) !== null) {
-        const fullImgTag = match[0];
-        const srcValue = match[1];
+    // Pattern 1: http://localhost:5000/uploads/...
+    const localhostRegex = /src=["'](http:\/\/localhost:5000\/uploads\/[^"']+)["']/g;
+    let match;
+    
+    while ((match = localhostRegex.exec(content)) !== null) {
+        const fullUrl = match[1];
+        // Extraire le chemin relatif : /uploads/articles/content/xxx.jpg
+        const relativePath = fullUrl.replace('http://localhost:5000', '');
         
-        if (srcValue.startsWith('/uploads') || srcValue.startsWith('uploads')) {
-            console.log(`  📷 Image trouvée: ${srcValue}`);
-            
-            const cloudinaryUrl = await uploadImageToCloudinary(srcValue);
-            
-            if (cloudinaryUrl) {
-                const newImgTag = fullImgTag.replace(srcValue, cloudinaryUrl);
-                updatedContent = updatedContent.replace(fullImgTag, newImgTag);
-                console.log(`  ✅ Migrée vers: ${cloudinaryUrl}`);
-            }
+        console.log(`  📷 Image trouvée: ${fullUrl}`);
+        
+        // Uploader vers Cloudinary
+        const cloudinaryUrl = await uploadImageToCloudinary(relativePath);
+        
+        if (cloudinaryUrl) {
+            updatedContent = updatedContent.replace(fullUrl, cloudinaryUrl);
+            console.log(`  ✅ Migrée vers: ${cloudinaryUrl}`);
+            hasChanges = true;
         }
     }
     
-    return updatedContent;
+    // Pattern 2: /uploads/... (chemin relatif)
+    const relativeRegex = /src=["'](\/uploads\/[^"']+)["']/g;
+    
+    while ((match = relativeRegex.exec(content)) !== null) {
+        const relativePath = match[1];
+        
+        console.log(`  📷 Image trouvée: ${relativePath}`);
+        
+        const cloudinaryUrl = await uploadImageToCloudinary(relativePath);
+        
+        if (cloudinaryUrl) {
+            updatedContent = updatedContent.replace(relativePath, cloudinaryUrl);
+            console.log(`  ✅ Migrée vers: ${cloudinaryUrl}`);
+            hasChanges = true;
+        }
+    }
+    
+    return hasChanges ? updatedContent : content;
 };
 
+// Fonction principale
 const migrateArticleContent = async () => {
     try {
         console.log('🚀 Démarrage de la migration du contenu des articles...\n');
@@ -75,11 +98,13 @@ const migrateArticleContent = async () => {
         for (const article of articles) {
             console.log(`\n📝 Traitement: "${article.title}"`);
             
-            if (!article.content || !article.content.includes('/uploads')) {
+            // Vérifier si le contenu contient des URLs localhost ou /uploads
+            if (!article.content || (!article.content.includes('localhost:5000') && !article.content.includes('/uploads'))) {
                 console.log('  ℹ️  Pas d\'images à migrer');
                 continue;
             }
             
+            // Traiter le contenu
             const updatedContent = await processArticleContent(article.content);
             
             if (updatedContent !== article.content) {
