@@ -11,11 +11,11 @@ const connectDB = async () => {
         const conn = await mongoose.connect(process.env.MONGO_URI);
         
         // Si la connexion réussit, afficher un message de succès
-        console.log(`✅ MongoDB Connecté : ${conn.connection.host}`);
+        console.log(`MongoDB Connecté : ${conn.connection.host}`);
         
     } catch (error) {
         // Si la connexion échoue, afficher l'erreur
-        console.error(`❌ Erreur de connexion MongoDB : ${error.message}`);
+        console.error(`Erreur de connexion MongoDB : ${error.message}`);
         
         // Arrêter le serveur avec un code d'erreur (1)
         // Cela empêche le serveur de tourner sans base de données
