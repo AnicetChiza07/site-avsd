@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, Tag, ArrowUpRight, ChevronLeft, Quote } from 'lucide-react';
 import articleService from '../services/articleService';
 import SkeletonText from '../components/ui/SkeletonText';
-import { getBaseUrl } from '../services/api';
+import { getImageUrl, getBaseUrl } from '../services/api';
 
 const ArticleDetail = () => {
     const { slug } = useParams();
@@ -11,6 +11,21 @@ const ArticleDetail = () => {
     const [recentArticles, setRecentArticles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
+
+    // Fonction pour transformer le contenu HTML et corriger les URLs d'images
+    const processContent = (content) => {
+        if (!content) return '';
+        
+        // Remplacer les URLs relatives d'images par des URLs complètes
+        // Match les src="/uploads/..." ou src='uploads/...'
+        return content.replace(
+            /src=["']\/?(uploads\/[^"']+)["']/g,
+            (match, path) => {
+                const fullUrl = `${getBaseUrl()}/${path}`;
+                return `src="${fullUrl}"`;
+            }
+        );
+    };
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -101,7 +116,7 @@ const ArticleDetail = () => {
             {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img src={article.image ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`) : '/placeholder.jpg'} alt={article.title} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(article.image)} alt={article.title} className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
                 </div>
                 <div className="container relative z-10 flex flex-col justify-center h-full py-20">
@@ -165,8 +180,8 @@ const ArticleDetail = () => {
                                 </div>
                             )}
                             
-                            {/* Contenu HTML de l'article */}
-                            <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: article.content }} />
+                            {/* Contenu HTML de l'article avec URLs corrigées */}
+                            <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: processContent(article.content) }} />
 
                             {/* Boutons de partage */}
                             <div className="mt-12 pt-8 border-t border-gray-200">
@@ -200,7 +215,7 @@ const ArticleDetail = () => {
                                         >
                                             <div className="w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden">
                                                 <img 
-                                                    src={recentArticle.image ? (recentArticle.image.startsWith('http') ? recentArticle.image : `${getBaseUrl()}${recentArticle.image}`) : '/placeholder.jpg'} 
+                                                    src={getImageUrl(recentArticle.image)}
                                                     alt={recentArticle.title} 
                                                     className="w-full h-full object-cover"
                                                 />
