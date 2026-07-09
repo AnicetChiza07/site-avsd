@@ -1,10 +1,25 @@
 // ===========================================
-// CONTRÔLEUR DES ZONES D'INTERVENTION
+// CONTRÔLEUR DES ZONES D'INTERVENTION (AVEC CLOUDINARY)
 // ===========================================
 
 import ZoneIntervention from '../models/ZoneIntervention.js';
-import fs from 'fs';
-import path from 'path';
+import cloudinary from '../config/cloudinary.js';
+
+// ===========================================
+// Fonction utilitaire : Extraire le public_id d'une URL Cloudinary
+// ===========================================
+const extractPublicId = (url) => {
+    if (!url || !url.includes('cloudinary.com')) return null;
+    
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null;
+    
+    const publicIdWithExtension = parts.slice(uploadIndex + 1).join('/');
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+    
+    return publicId;
+};
 
 // ===========================================
 // @desc    Récupérer toutes les zones
@@ -48,8 +63,9 @@ const createZone = async (req, res) => {
         // Vérifier la limite de 10 zones
         const totalZones = await ZoneIntervention.countDocuments();
         if (totalZones >= 10) {
-            if (req.file && fs.existsSync(req.file.path)) {
-                fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary en cas d'erreur
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
             }
             return res.status(400).json({
                 success: false,
@@ -57,19 +73,22 @@ const createZone = async (req, res) => {
             });
         }
 
-        // CORRECTION : Utiliser 'title' au lieu de 'name'
         const { title, description, order } = req.body;
 
         // Validation des champs obligatoires
         if (!title || !description) {
-            fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary en cas d'erreur
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(400).json({
                 success: false,
                 message: 'Veuillez remplir tous les champs obligatoires (titre, description)'
             });
         }
 
-        const image = `/uploads/zones/${req.file.filename}`;
+        // Avec Cloudinary, req.file.path contient l'URL complète
+        const image = req.file.path;
 
         const zoneData = {
             title: title.trim(),
@@ -89,8 +108,13 @@ const createZone = async (req, res) => {
     } catch (error) {
         console.error('Erreur createZone:', error);
 
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
         }
 
         if (error.name === 'ValidationError') {
@@ -119,8 +143,9 @@ const updateZone = async (req, res) => {
 
         const zone = await ZoneIntervention.findById(id);
         if (!zone) {
-            if (req.file && fs.existsSync(req.file.path)) {
-                fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary si uploadée
+            if (req.file && req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
             }
             return res.status(404).json({
                 success: false,
@@ -130,20 +155,26 @@ const updateZone = async (req, res) => {
 
         const updates = { ...req.body };
 
-        // CORRECTION : Convertir 'order' en nombre si présent
+        // Convertir 'order' en nombre si présent
         if (updates.order !== undefined) {
             updates.order = parseInt(updates.order);
         }
 
         // Si une nouvelle image a été uploadée
         if (req.file) {
+            // Supprimer l'ancienne image de Cloudinary
             if (zone.image) {
-                const oldImagePath = path.join(process.cwd(), zone.image.substring(1));
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
+                const oldPublicId = extractPublicId(zone.image);
+                if (oldPublicId) {
+                    try {
+                        await cloudinary.uploader.destroy(oldPublicId);
+                    } catch (cloudinaryError) {
+                        console.error('Erreur suppression ancienne image Cloudinary:', cloudinaryError);
+                    }
                 }
             }
-            updates.image = `/uploads/zones/${req.file.filename}`;
+            // Utiliser la nouvelle URL Cloudinary
+            updates.image = req.file.path;
         }
 
         const updatedZone = await ZoneIntervention.findByIdAndUpdate(
@@ -161,8 +192,13 @@ const updateZone = async (req, res) => {
     } catch (error) {
         console.error('Erreur updateZone:', error);
 
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
         }
 
         if (error.name === 'ValidationError') {
@@ -198,10 +234,15 @@ const deleteZone = async (req, res) => {
             });
         }
 
+        // Supprimer l'image de Cloudinary
         if (zone.image) {
-            const imagePath = path.join(process.cwd(), zone.image.substring(1));
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
+            const publicId = extractPublicId(zone.image);
+            if (publicId) {
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (cloudinaryError) {
+                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
+                }
             }
         }
 

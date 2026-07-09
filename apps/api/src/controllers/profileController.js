@@ -1,11 +1,26 @@
 // ===========================================
-// CONTRÔLEUR PROFIL UTILISATEUR
+// CONTRÔLEUR PROFIL UTILISATEUR (AVEC CLOUDINARY)
 // ===========================================
 
 import Admin from '../models/Admin.js';
 import bcrypt from 'bcryptjs';
-import fs from 'fs';
-import path from 'path';
+import cloudinary from '../config/cloudinary.js';
+
+// ===========================================
+// Fonction utilitaire : Extraire le public_id d'une URL Cloudinary
+// ===========================================
+const extractPublicId = (url) => {
+    if (!url || !url.includes('cloudinary.com')) return null;
+    
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null;
+    
+    const publicIdWithExtension = parts.slice(uploadIndex + 1).join('/');
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+    
+    return publicId;
+};
 
 // ===========================================
 // @desc    Obtenir le profil de l'admin connecté
@@ -159,22 +174,27 @@ const uploadAvatar = async (req, res) => {
         const admin = await Admin.findById(req.admin._id);
         
         if (!admin) {
-            if (req.file && fs.existsSync(req.file.path)) {
-                fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary en cas d'erreur
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
             }
             return res.status(404).json({ success: false, message: 'Utilisateur non trouvé' });
         }
 
-        // Supprimer l'ancien avatar s'il existe
+        // Supprimer l'ancien avatar de Cloudinary s'il existe
         if (admin.avatar) {
-            const oldPath = path.join(process.cwd(), admin.avatar.substring(1));
-            if (fs.existsSync(oldPath)) {
-                fs.unlinkSync(oldPath);
+            const oldPublicId = extractPublicId(admin.avatar);
+            if (oldPublicId) {
+                try {
+                    await cloudinary.uploader.destroy(oldPublicId);
+                } catch (cloudinaryError) {
+                    console.error('Erreur suppression ancien avatar Cloudinary:', cloudinaryError);
+                }
             }
         }
 
-        // Sauvegarder le nouveau chemin
-        admin.avatar = `/uploads/avatars/${req.file.filename}`;
+        // Sauvegarder l'URL Cloudinary
+        admin.avatar = req.file.path;
         await admin.save();
 
         console.log('✅ Avatar sauvegardé:', admin.avatar);
@@ -187,8 +207,13 @@ const uploadAvatar = async (req, res) => {
     } catch (error) {
         console.error('Erreur uploadAvatar:', error);
         
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
         }
         
         res.status(500).json({ success: false, message: 'Erreur serveur' });
@@ -209,9 +234,14 @@ const removeAvatar = async (req, res) => {
         }
 
         if (admin.avatar) {
-            const avatarPath = path.join(process.cwd(), admin.avatar.substring(1));
-            if (fs.existsSync(avatarPath)) {
-                fs.unlinkSync(avatarPath);
+            // Supprimer l'avatar de Cloudinary
+            const publicId = extractPublicId(admin.avatar);
+            if (publicId) {
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (cloudinaryError) {
+                    console.error('Erreur suppression avatar Cloudinary:', cloudinaryError);
+                }
             }
             admin.avatar = null;
             await admin.save();

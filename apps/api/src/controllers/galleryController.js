@@ -1,7 +1,26 @@
+// ===========================================
+// CONTRÔLEUR DE LA GALERIE (AVEC CLOUDINARY)
+// ===========================================
+
 import Gallery from '../models/Gallery.js';
 import GalleryCategory from '../models/GalleryCategory.js';
-import fs from 'fs';
-import path from 'path';
+import cloudinary from '../config/cloudinary.js';
+
+// ===========================================
+// Fonction utilitaire : Extraire le public_id d'une URL Cloudinary
+// ===========================================
+const extractPublicId = (url) => {
+    if (!url || !url.includes('cloudinary.com')) return null;
+    
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null;
+    
+    const publicIdWithExtension = parts.slice(uploadIndex + 1).join('/');
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+    
+    return publicId;
+};
 
 // ===========================================
 // @desc    Récupérer toutes les images (avec filtrage par catégorie)
@@ -48,15 +67,19 @@ export const createGallery = async (req, res) => {
         const { title, description, category } = req.body;
 
         if (!title || !category) {
-            fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary en cas d'erreur
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(400).json({ 
                 success: false, 
                 message: 'Le titre et la catégorie sont obligatoires' 
             });
         }
 
+        // Avec Cloudinary, req.file.path contient l'URL complète
         const galleryData = {
-            image: `/uploads/gallery/${req.file.filename}`,
+            image: req.file.path,
             title: title.trim(),
             description: description ? description.trim() : '',
             category
@@ -72,7 +95,16 @@ export const createGallery = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur createGallery:', error);
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
+        }
+        
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
@@ -86,14 +118,20 @@ export const updateGallery = async (req, res) => {
     try {
         const image = await Gallery.findById(req.params.id);
         if (!image) {
-            if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary si uploadée
+            if (req.file && req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(404).json({ success: false, message: 'Image non trouvée' });
         }
 
         const { title, description, category } = req.body;
 
         if (!title || !category) {
-            if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary si uploadée
+            if (req.file && req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(400).json({ 
                 success: false, 
                 message: 'Le titre et la catégorie sont obligatoires' 
@@ -108,11 +146,19 @@ export const updateGallery = async (req, res) => {
 
         // Si nouvelle image
         if (req.file) {
+            // Supprimer l'ancienne image de Cloudinary
             if (image.image) {
-                const oldImagePath = path.join(process.cwd(), image.image.substring(1));
-                if (fs.existsSync(oldImagePath)) fs.unlinkSync(oldImagePath);
+                const oldPublicId = extractPublicId(image.image);
+                if (oldPublicId) {
+                    try {
+                        await cloudinary.uploader.destroy(oldPublicId);
+                    } catch (cloudinaryError) {
+                        console.error('Erreur suppression ancienne image Cloudinary:', cloudinaryError);
+                    }
+                }
             }
-            updates.image = `/uploads/gallery/${req.file.filename}`;
+            // Utiliser la nouvelle URL Cloudinary
+            updates.image = req.file.path;
         }
 
         const updatedImage = await Gallery.findByIdAndUpdate(
@@ -128,7 +174,16 @@ export const updateGallery = async (req, res) => {
         });
     } catch (error) {
         console.error('Erreur updateGallery:', error);
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
+        }
+        
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
@@ -143,9 +198,16 @@ export const deleteGallery = async (req, res) => {
         const image = await Gallery.findById(req.params.id);
         if (!image) return res.status(404).json({ success: false, message: 'Image non trouvée' });
 
+        // Supprimer l'image de Cloudinary
         if (image.image) {
-            const imagePath = path.join(process.cwd(), image.image.substring(1));
-            if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+            const publicId = extractPublicId(image.image);
+            if (publicId) {
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (cloudinaryError) {
+                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
+                }
+            }
         }
 
         await Gallery.findByIdAndDelete(req.params.id);

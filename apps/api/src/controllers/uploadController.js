@@ -1,5 +1,5 @@
 // ===========================================
-// CONTRÔLEUR D'UPLOAD D'IMAGES
+// CONTRÔLEUR D'UPLOAD D'IMAGES (AVEC CLOUDINARY)
 // ===========================================
 
 const uploadImage = async (req, res) => {
@@ -11,7 +11,8 @@ const uploadImage = async (req, res) => {
             });
         }
 
-        const imageUrl = `/uploads/articles/content/${req.file.filename}`;
+        // Avec Cloudinary, req.file.path contient l'URL complète
+        const imageUrl = req.file.path;
 
         res.status(200).json({
             success: true,

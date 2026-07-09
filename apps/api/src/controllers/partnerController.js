@@ -1,10 +1,25 @@
 // ===========================================
-// CONTRÔLEUR DES PARTENAIRES
+// CONTRÔLEUR DES PARTENAIRES (AVEC CLOUDINARY)
 // ===========================================
 
 import Partner from '../models/Partner.js';
-import fs from 'fs';
-import path from 'path';
+import cloudinary from '../config/cloudinary.js';
+
+// ===========================================
+// Fonction utilitaire : Extraire le public_id d'une URL Cloudinary
+// ===========================================
+const extractPublicId = (url) => {
+    if (!url || !url.includes('cloudinary.com')) return null;
+    
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null;
+    
+    const publicIdWithExtension = parts.slice(uploadIndex + 1).join('/');
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
+    
+    return publicId;
+};
 
 // ===========================================
 // @desc    Récupérer tous les partenaires actifs
@@ -33,7 +48,9 @@ const createPartner = async (req, res) => {
         }
 
         const { order } = req.body;
-        const image = `/uploads/partners/${req.file.filename}`;
+        
+        // Avec Cloudinary, req.file.path contient l'URL complète
+        const image = req.file.path;
 
         const partner = await Partner.create({
             image,
@@ -44,7 +61,14 @@ const createPartner = async (req, res) => {
         console.log('✅ Partenaire créé avec image:', image);
         res.status(201).json({ success: true, message: 'Partenaire créé', data: partner });
     } catch (error) {
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
+        }
         console.error('Erreur createPartner:', error);
         res.status(500).json({ success: false, message: 'Erreur serveur: ' + error.message });
     }
@@ -61,19 +85,29 @@ const updatePartner = async (req, res) => {
         const partner = await Partner.findById(id);
         
         if (!partner) {
-            if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary si uploadée
+            if (req.file && req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(404).json({ success: false, message: 'Partenaire non trouvé' });
         }
 
         const updates = { ...req.body };
         
         if (req.file) {
-            // Supprimer l'ancienne image
+            // Supprimer l'ancienne image de Cloudinary
             if (partner.image) {
-                const oldPath = path.join(process.cwd(), partner.image.substring(1));
-                if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+                const oldPublicId = extractPublicId(partner.image);
+                if (oldPublicId) {
+                    try {
+                        await cloudinary.uploader.destroy(oldPublicId);
+                    } catch (cloudinaryError) {
+                        console.error('Erreur suppression ancienne image Cloudinary:', cloudinaryError);
+                    }
+                }
             }
-            updates.image = `/uploads/partners/${req.file.filename}`;
+            // Utiliser la nouvelle URL Cloudinary
+            updates.image = req.file.path;
         }
 
         if (updates.order) updates.order = parseInt(updates.order);
@@ -81,7 +115,14 @@ const updatePartner = async (req, res) => {
         const updatedPartner = await Partner.findByIdAndUpdate(id, updates, { returnDocument: 'after' });
         res.status(200).json({ success: true, message: 'Partenaire mis à jour', data: updatedPartner });
     } catch (error) {
-        if (req.file && fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
+        }
         console.error('Erreur updatePartner:', error);
         res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
@@ -99,9 +140,16 @@ const deletePartner = async (req, res) => {
         
         if (!partner) return res.status(404).json({ success: false, message: 'Partenaire non trouvé' });
 
+        // Supprimer l'image de Cloudinary
         if (partner.image) {
-            const imagePath = path.join(process.cwd(), partner.image.substring(1));
-            if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
+            const publicId = extractPublicId(partner.image);
+            if (publicId) {
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (cloudinaryError) {
+                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
+                }
+            }
         }
 
         res.status(200).json({ success: true, message: 'Partenaire supprimé' });

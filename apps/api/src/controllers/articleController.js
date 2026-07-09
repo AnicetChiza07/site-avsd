@@ -1,10 +1,28 @@
 // ===========================================
-// CONTRÔLEUR DES ARTICLES
+// CONTRÔLEUR DES ARTICLES (AVEC CLOUDINARY)
 // ===========================================
 
 import Article from '../models/Article.js';
-import fs from 'fs';
-import path from 'path';
+import cloudinary from '../config/cloudinary.js';
+
+// ===========================================
+// Fonction utilitaire : Extraire le public_id d'une URL Cloudinary
+// ===========================================
+const extractPublicId = (url) => {
+    if (!url || !url.includes('cloudinary.com')) return null;
+    
+    // Extraire le public_id de l'URL
+    // Exemple: https://res.cloudinary.com/demo/image/upload/v1234567890/avsd-rdc/articles/covers/cover-123.jpg
+    // Public ID: avsd-rdc/articles/covers/cover-123
+    const parts = url.split('/');
+    const uploadIndex = parts.indexOf('upload');
+    if (uploadIndex === -1) return null;
+    
+    const publicIdWithExtension = parts.slice(uploadIndex + 1).join('/');
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, ''); // Retirer l'extension
+    
+    return publicId;
+};
 
 // ===========================================
 // @desc    Récupérer tous les articles
@@ -152,11 +170,15 @@ const createArticle = async (req, res) => {
             readTime, featured, publishedAt
         } = req.body;
 
-        const image = `/uploads/articles/covers/${req.file.filename}`;
+        // Avec Cloudinary, req.file.path contient l'URL complète
+        const image = req.file.path;
 
         // Validation des champs obligatoires
         if (!title || !slug || !content || !category) {
-            fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary en cas d'erreur
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(400).json({
                 success: false,
                 message: 'Veuillez remplir tous les champs obligatoires (titre, slug, contenu, catégorie)'
@@ -166,7 +188,10 @@ const createArticle = async (req, res) => {
         // Vérifier que le slug est unique
         const existingArticle = await Article.findOne({ slug });
         if (existingArticle) {
-            fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary en cas d'erreur
+            if (req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
+            }
             return res.status(400).json({
                 success: false,
                 message: 'Un article avec ce slug existe déjà'
@@ -204,9 +229,13 @@ const createArticle = async (req, res) => {
     } catch (error) {
         console.error('Erreur createArticle:', error);
 
-        // Supprimer l'image en cas d'erreur
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
         }
 
         if (error.name === 'ValidationError') {
@@ -235,8 +264,9 @@ const updateArticle = async (req, res) => {
 
         const article = await Article.findById(id);
         if (!article) {
-            if (req.file && fs.existsSync(req.file.path)) {
-                fs.unlinkSync(req.file.path);
+            // Supprimer l'image de Cloudinary si uploadée
+            if (req.file && req.file.filename) {
+                await cloudinary.uploader.destroy(req.file.filename);
             }
             return res.status(404).json({
                 success: false,
@@ -248,22 +278,28 @@ const updateArticle = async (req, res) => {
 
         // Si une nouvelle image a été uploadée
         if (req.file) {
-            // Supprimer l'ancienne image
+            // Supprimer l'ancienne image de Cloudinary
             if (article.image) {
-                const oldImagePath = path.join(process.cwd(), article.image.substring(1));
-                if (fs.existsSync(oldImagePath)) {
-                    fs.unlinkSync(oldImagePath);
+                const oldPublicId = extractPublicId(article.image);
+                if (oldPublicId) {
+                    try {
+                        await cloudinary.uploader.destroy(oldPublicId);
+                    } catch (cloudinaryError) {
+                        console.error('Erreur suppression ancienne image Cloudinary:', cloudinaryError);
+                    }
                 }
             }
-            updates.image = `/uploads/articles/covers/${req.file.filename}`;
+            // Utiliser la nouvelle URL Cloudinary
+            updates.image = req.file.path;
         }
 
         // Si le slug a changé, vérifier qu'il est unique
         if (updates.slug && updates.slug !== article.slug) {
             const existingArticle = await Article.findOne({ slug: updates.slug });
             if (existingArticle) {
-                if (req.file && fs.existsSync(req.file.path)) {
-                    fs.unlinkSync(req.file.path);
+                // Supprimer l'image de Cloudinary si uploadée
+                if (req.file && req.file.filename) {
+                    await cloudinary.uploader.destroy(req.file.filename);
                 }
                 return res.status(400).json({
                     success: false,
@@ -303,8 +339,13 @@ const updateArticle = async (req, res) => {
     } catch (error) {
         console.error('Erreur updateArticle:', error);
 
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
+        // Supprimer l'image de Cloudinary en cas d'erreur
+        if (req.file && req.file.filename) {
+            try {
+                await cloudinary.uploader.destroy(req.file.filename);
+            } catch (cloudinaryError) {
+                console.error('Erreur suppression Cloudinary:', cloudinaryError);
+            }
         }
 
         if (error.name === 'ValidationError') {
@@ -340,11 +381,15 @@ const deleteArticle = async (req, res) => {
             });
         }
 
-        // Supprimer l'image du disque dur
+        // Supprimer l'image de Cloudinary
         if (article.image) {
-            const imagePath = path.join(process.cwd(), article.image.substring(1));
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
+            const publicId = extractPublicId(article.image);
+            if (publicId) {
+                try {
+                    await cloudinary.uploader.destroy(publicId);
+                } catch (cloudinaryError) {
+                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
+                }
             }
         }
 

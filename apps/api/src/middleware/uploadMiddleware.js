@@ -1,124 +1,82 @@
 // ===========================================
-// MIDDLEWARE D'UPLOAD DE FICHIERS
+// MIDDLEWARE D'UPLOAD AVEC CLOUDINARY
 // ===========================================
 
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import cloudinary from '../config/cloudinary.js';
 
 // ===========================================
-// CONFIGURATIONS DE STOCKAGE
+// CONFIGURATIONS DE STOCKAGE CLOUDINARY
 // ===========================================
 
 // Pour les articles (image de couverture)
-const articleCoverStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/articles/covers';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `cover-${uniqueSuffix}${ext}`);
+const articleCoverStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/articles/covers',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 1200, height: 800, crop: 'limit' }]
     }
 });
 
 // Pour le contenu des articles (images dans le texte)
-const articleContentStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/articles/content';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `content-${uniqueSuffix}${ext}`);
+const articleContentStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/articles/content',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 800, crop: 'limit' }]
     }
 });
 
 // Pour les opportunités (PDF)
-const opportunityStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/opportunities';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `opp-${uniqueSuffix}${ext}`);
+const opportunityStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/opportunities',
+        allowed_formats: ['pdf'],
+        resource_type: 'raw' // Important pour les PDF
     }
 });
 
 // Pour les zones d'intervention
-const zoneStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/zones';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `zone-${uniqueSuffix}${ext}`);
+const zoneStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/zones',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 1200, height: 800, crop: 'limit' }]
     }
 });
 
 // Pour les partenaires (logos)
-const partnerStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/partners';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `partner-${uniqueSuffix}${ext}`);
+const partnerStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/partners',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 400, height: 300, crop: 'limit' }]
     }
 });
 
-// NOUVEAU : Pour la galerie d'images
-const galleryStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/gallery';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `gallery-${uniqueSuffix}${ext}`);
+// Pour la galerie d'images
+const galleryStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/gallery',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 1200, crop: 'limit' }]
     }
 });
 
-// Middleware générique (fallback)
-const genericStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `file-${uniqueSuffix}${ext}`);
+// Pour les avatars
+const avatarStorage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'avsd-rdc/avatars',
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+        transformation: [{ width: 400, height: 400, crop: 'limit' }]
     }
 });
 
@@ -142,6 +100,16 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
+const imageFilter = (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Format non autorisé. Utilisez PNG, JPG ou WebP.'), false);
+    }
+};
+
 // ===========================================
 // INSTANCES DE MULTER
 // ===========================================
@@ -154,7 +122,7 @@ const uploadArticleCover = multer({
 
 const uploadArticleContent = multer({
     storage: articleContentStorage,
-    fileFilter,
+    fileFilter: imageFilter,
     limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo
 });
 
@@ -166,27 +134,32 @@ const uploadOpportunity = multer({
 
 const uploadZone = multer({
     storage: zoneStorage,
-    fileFilter,
+    fileFilter: imageFilter,
     limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo
 });
 
 const uploadPartner = multer({
     storage: partnerStorage,
-    fileFilter,
+    fileFilter: imageFilter,
     limits: { fileSize: 2 * 1024 * 1024 } // 2 Mo pour logos
 });
 
-// NOUVEAU : Instance pour la galerie
 const uploadGallery = multer({
     storage: galleryStorage,
-    fileFilter,
+    fileFilter: imageFilter,
     limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo pour images
 });
 
+const uploadAvatar = multer({
+    storage: avatarStorage,
+    fileFilter: imageFilter,
+    limits: { fileSize: 2 * 1024 * 1024 } // 2 Mo
+});
+
 const upload = multer({
-    storage: genericStorage,
+    storage: articleCoverStorage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo
+    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo (fallback)
 });
 
 // ===========================================
@@ -214,28 +187,6 @@ const handleUploadError = (err, req, res, next) => {
     next();
 };
 
-// Configuration pour les avatars
-const avatarStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        const uploadPath = 'uploads/avatars';
-        if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
-        }
-        cb(null, uploadPath);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = path.extname(file.originalname);
-        cb(null, `avatar-${uniqueSuffix}${ext}`);
-    }
-});
-
-const uploadAvatar = multer({
-    storage: avatarStorage,
-    fileFilter,
-    limits: { fileSize: 2 * 1024 * 1024 } // 2 Mo
-});
-
 // ===========================================
 // EXPORTS
 // ===========================================
@@ -247,7 +198,7 @@ export {
     uploadOpportunity,
     uploadZone,
     uploadPartner,
-    uploadGallery,  // NOUVEAU : Export de uploadGallery
+    uploadGallery,
     uploadAvatar,
     handleUploadError 
 };
