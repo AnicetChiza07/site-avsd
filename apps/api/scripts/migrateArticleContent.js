@@ -19,7 +19,7 @@ const uploadImageToCloudinary = async (imagePath) => {
         const fullPath = path.join(__dirname, '..', imagePath);
         
         if (!fs.existsSync(fullPath)) {
-            console.log(`  ⚠️  Fichier non trouvé: ${fullPath}`);
+            console.log(`Fichier non trouvé: ${fullPath}`);
             return null;
         }
         
@@ -30,7 +30,7 @@ const uploadImageToCloudinary = async (imagePath) => {
         
         return result.secure_url;
     } catch (error) {
-        console.error(`  ❌ Erreur upload ${imagePath}:`, error.message);
+        console.error(`Erreur upload ${imagePath}:`, error.message);
         return null;
     }
 };
@@ -75,7 +75,7 @@ const processArticleContent = async (content) => {
         
         if (cloudinaryUrl) {
             updatedContent = updatedContent.replace(relativePath, cloudinaryUrl);
-            console.log(`  ✅ Migrée vers: ${cloudinaryUrl}`);
+            console.log(` Migrée vers: ${cloudinaryUrl}`);
             hasChanges = true;
         }
     }
