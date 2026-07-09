@@ -10,7 +10,7 @@ import {
     Mail, Map, MapPin, RefreshCw, Building2, LogOut, Menu, X
 } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
-import { getBaseUrl } from '../../services/api';
+import { getImageUrl } from '../../services/api';
 
 const AdminLayout = ({ children }) => {
     const { admin, logout } = useContext(AuthContext);
@@ -24,7 +24,7 @@ const AdminLayout = ({ children }) => {
         const loadAvatar = () => {
             const adminData = JSON.parse(localStorage.getItem('admin') || '{}');
             if (adminData.avatar) {
-                setAvatarUrl(`${getBaseUrl()}${adminData.avatar}`);
+                setAvatarUrl(getImageUrl(adminData.avatar));
             } else {
                 setAvatarUrl(null);
             }

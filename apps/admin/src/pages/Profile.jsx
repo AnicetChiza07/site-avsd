@@ -13,7 +13,7 @@ import {
 import { AuthContext } from '../contexts/AuthContext';
 import profileService from '../services/profileService';
 import AdminLayout from '../components/layout/AdminLayout';
-import { getBaseUrl } from '../services/api';
+import { getImageUrl } from '../services/api';
 
 const Profile = () => {
     const { admin, logout } = useContext(AuthContext);
@@ -50,7 +50,7 @@ const Profile = () => {
                     email: res.data.email || ''
                 });
                 if (res.data.avatar) {
-                    setPhotoPreview(`${getBaseUrl()}${res.data.avatar}`);
+                    setPhotoPreview(getImageUrl(res.data.avatar));
                 }
             } catch (error) {
                 console.error('Erreur fetchProfile:', error);
@@ -160,7 +160,7 @@ const Profile = () => {
             // Rafraîchir le profil
             const profileRes = await profileService.getProfile();
             if (profileRes.data.avatar) {
-                setPhotoPreview(`${getBaseUrl()}${profileRes.data.avatar}`);
+                setPhotoPreview(getImageUrl(profileRes.data.avatar));
             }
             setPhotoFile(null);
             
