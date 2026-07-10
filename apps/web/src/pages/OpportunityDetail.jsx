@@ -4,6 +4,7 @@ import {
     Calendar, MapPin, Briefcase, ArrowLeft, Download, 
     ExternalLink, CheckCircle, Clock, AlertCircle 
 } from 'lucide-react';
+import SEO from '../components/SEO';
 import opportunityService from '../services/opportunityService';
 import { getBaseUrl } from '../services/api';
 
@@ -96,6 +97,15 @@ const OpportunityDetail = () => {
 
     return (
         <>
+            {/* SEO Dynamique pour chaque opportunité */}
+            <SEO 
+                title={`${opportunity.position || opportunity.title} - ${opportunity.type === 'appel_offre' ? "Appel d'offre" : opportunity.type}`}
+                description={opportunity.description ? opportunity.description.substring(0, 150) + '...' : `Découvrez l'opportunité : ${opportunity.position || opportunity.title} chez AVSD RDC`}
+                keywords={`${opportunity.type}, ${opportunity.position || opportunity.title}, opportunité AVSD, ${opportunity.location}, ${opportunity.contractType}`}
+                image={opportunity.image ? (opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`) : undefined}
+                url={`/opportunites/${opportunity._id}`}
+            />
+
             {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-end overflow-hidden">
                 <div className="absolute inset-0 z-0">

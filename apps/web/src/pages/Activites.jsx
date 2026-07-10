@@ -1,7 +1,8 @@
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
-import CTASection from '../components/sections/CTASection'; // 1. Import ajouté ici
+import CTASection from '../components/sections/CTASection';
 import PartnersSection from '../components/sections/PartnersSection';
+import SEO from '../components/SEO';
 import { Target, Handshake, Heart } from 'lucide-react';
 import bgImage from '../assets/images/Caroussel/secondCarrous.jpg';
 
@@ -50,6 +51,14 @@ const Activites = () => {
 
     return (
         <>
+            {/* SEO Optimisé pour la page activités */}
+            <SEO 
+                title="Nos Activités"
+                description="Découvrez les activités de l'AVSD RDC : Programme GPPD, plaidoyers pour les AGR, auto-prise en charge des femmes et développement communautaire au Nord-Kivu."
+                keywords="activités AVSD, programme GPPD, AGR, plaidoyer, autonomisation femmes, développement communautaire, Nord-Kivu, RDC"
+                url="/activites"
+            />
+
             {/* 2. PageBanner englobe la bannière et le contenu principal */}
             <PageBanner 
                 title="Nos Activités" 

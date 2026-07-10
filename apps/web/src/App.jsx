@@ -1,49 +1,60 @@
 import './App.css';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'; // 1. Ajout de Outlet
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
+
+// Layouts
 import Header from './components/layouts/Header.jsx';
 import Footer from './components/layouts/Footer.jsx';
 
+// Pages
 import Accueil from './pages/Accueil.jsx';
 import Actualites from './pages/Actualites.jsx';
 import ArticleDetail from './pages/ArticleDetail.jsx';
 import Activites from './pages/Activites.jsx';
 import Opportunites from './pages/Opportunites.jsx';
-import Contact from './pages/Contact.jsx';
-import Error404 from './pages/Error404.jsx';
 import OpportunityDetail from './pages/OpportunityDetail.jsx';
 import Gallery from './pages/Gallery';
+import Contact from './pages/Contact.jsx';
+import Error404 from './pages/Error404.jsx';
 
-// Composant Layout qui contient le Header et le Footer
+// ===========================================
+// LAYOUT PRINCIPAL (avec Header et Footer)
+// ===========================================
 const MainLayout = () => {
     return (
         <>
             <Header />
-            <Outlet /> {/* Ici s'afficheront les pages enfants */}
+            <Outlet />
             <Footer />
         </>
     );
 };
 
+// ===========================================
+// APPLICATION PRINCIPALE
+// ===========================================
 function App() {
     return (
-        <BrowserRouter>
-            <Routes>
-                {/* 2. Routes avec Header et Footer */}
-                <Route element={<MainLayout />}>
-                    <Route path="/" element={<Accueil />} />
-                    <Route path="/activites" element={<Activites />} />
-                    <Route path="/actualites" element={<Actualites />} />
-                    <Route path="/actualites/:slug" element={<ArticleDetail />} />
-                    <Route path="/opportunites" element={<Opportunites />} />
-                    <Route path="/opportunites/:id" element={<OpportunityDetail />} />
-                    <Route path="/galerie" element={<Gallery />} />
-                    <Route path="/contact" element={<Contact />} />
-                </Route>
+        <HelmetProvider>
+            <BrowserRouter>
+                <Routes>
+                    {/* Routes avec Header et Footer */}
+                    <Route element={<MainLayout />}>
+                        <Route path="/" element={<Accueil />} />
+                        <Route path="/activites" element={<Activites />} />
+                        <Route path="/actualites" element={<Actualites />} />
+                        <Route path="/actualites/:slug" element={<ArticleDetail />} />
+                        <Route path="/opportunites" element={<Opportunites />} />
+                        <Route path="/opportunites/:id" element={<OpportunityDetail />} />
+                        <Route path="/galerie" element={<Gallery />} />
+                        <Route path="/contact" element={<Contact />} />
+                    </Route>
 
-                {/* 3. Route 404 SANS Header ni Footer (isolée) */}
-                <Route path="*" element={<Error404 />} />
-            </Routes>
-        </BrowserRouter>
+                    {/* Route 404 (sans Header ni Footer) */}
+                    <Route path="*" element={<Error404 />} />
+                </Routes>
+            </BrowserRouter>
+        </HelmetProvider>
     );
 }
 

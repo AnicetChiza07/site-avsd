@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { NotepadText, ArrowUpRight, Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import SEO from '../components/SEO';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonCard from '../components/ui/SkeletonCard';
@@ -55,19 +56,15 @@ const Actualites = () => {
         return Array.from(yearsSet).sort((a, b) => b - a);
     }, [articles]);
 
-    // Article à la une (le premier avec featured: true)
     const featuredArticle = useMemo(() => articles.find(article => article.featured), [articles]);
 
-    // TOUS les articles sauf celui à la une (pour éviter le doublon)
     const filteredArticles = useMemo(() => {
         let filtered = articles;
         
-        // Exclure l'article à la une de la liste (pour éviter le doublon)
         if (featuredArticle) {
             filtered = articles.filter(article => article._id !== featuredArticle._id);
         }
         
-        // Filtrer par année si sélectionné
         if (selectedYear !== 'Tous') {
             filtered = filtered.filter(article => {
                 const articleYear = new Date(article.publishedAt || article.createdAt).getFullYear().toString();
@@ -87,6 +84,14 @@ const Actualites = () => {
 
     return (
         <PageBanner title="Nos actualités" subtitle="Ce blog partage nos initiatives et nos actions pour un avenir meilleur." bgImage={bgImage} badge="Notre blog" badgeIcon={NotepadText}>
+            {/* SEO Optimisé pour la page actualités */}
+            <SEO 
+                title="Nos actualités"
+                description="Découvrez les dernières actualités de l'AVSD RDC : nos initiatives, projets humanitaires, actions communautaires et témoignages du terrain en RDC."
+                keywords="actualités AVSD, blog humanitaire, initiatives RDC, projets communautaires, actions sociales, Nord-Kivu, Goma, développement"
+                url="/actualites"
+            />
+            
             <section data-theme="light" className="py-16 sm:py-24">
                 <div className="container">
                     {loading ? (
@@ -163,7 +168,6 @@ const Actualites = () => {
                                             <div className="relative h-64 overflow-hidden">
                                                 <img src={article.image ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`) : '/placeholder.jpg'} alt={article.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 
-                                                {/* OVERLAY SOMBRE - TOUJOURS VISIBLE */}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
                                                 
                                                 {article.category && (<div className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-semibold text-brand-blue shadow-sm">{article.category.name}</div>)}
@@ -172,7 +176,6 @@ const Actualites = () => {
                                                     <span className="text-xs text-gray-600 uppercase mt-1">{dateParts.month}</span>
                                                 </div>
                                                 
-                                                {/* ICÔNE - APPARAÎT AU HOVER */}
                                                 <div className="absolute bottom-4 right-4 w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg">
                                                     <ArrowUpRight className="w-5 h-5 text-white" strokeWidth={2.5} />
                                                 </div>

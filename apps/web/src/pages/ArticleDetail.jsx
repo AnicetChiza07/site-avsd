@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Calendar, Clock, Tag, ArrowUpRight, ChevronLeft, Quote } from 'lucide-react';
+import SEO from '../components/SEO';
 import articleService from '../services/articleService';
 import SkeletonText from '../components/ui/SkeletonText';
 import { getImageUrl, getBaseUrl } from '../services/api';
@@ -16,8 +17,6 @@ const ArticleDetail = () => {
     const processContent = (content) => {
         if (!content) return '';
         
-        // Remplacer les URLs relatives d'images par des URLs complètes
-        // Match les src="/uploads/..." ou src='uploads/...'
         return content.replace(
             /src=["']\/?(uploads\/[^"']+)["']/g,
             (match, path) => {
@@ -113,10 +112,19 @@ const ArticleDetail = () => {
 
     return (
         <>
+            {/* SEO Dynamique pour chaque article */}
+            <SEO 
+                title={article.title}
+                description={article.excerpt || `Découvrez l'article : ${article.title}`}
+                keywords={article.category ? `${article.category.name}, actualités AVSD, ${article.title}` : 'actualités AVSD, RDC, humanitaire'}
+                image={article.image ? getImageUrl(article.image) : undefined}
+                url={`/actualites/${article.slug}`}
+            />
+
             {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img src={getImageUrl(article.image)} alt={article.title} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(article.image)} alt={article.title} loading="lazy" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
                 </div>
                 <div className="container relative z-10 flex flex-col justify-center h-full py-20">
@@ -173,7 +181,7 @@ const ArticleDetail = () => {
                                         <div className="flex-1 h-px bg-gradient-to-r from-brand-blue/30 to-transparent" />
                                     </div>
                                     
-                                    {/* Texte de l'extrait - Taille normale, pas d'italique */}
+                                    {/* Texte de l'extrait */}
                                     <p className="text-base md:text-lg text-gray-700 leading-relaxed font-normal">
                                         {article.excerpt}
                                     </p>
@@ -217,6 +225,7 @@ const ArticleDetail = () => {
                                                 <img 
                                                     src={getImageUrl(recentArticle.image)}
                                                     alt={recentArticle.title} 
+                                                    loading="lazy"
                                                     className="w-full h-full object-cover"
                                                 />
                                             </div>
