@@ -13,6 +13,7 @@ const HeroSection = () => {
                 <img 
                     src={bgImg} 
                     alt="" 
+                    loading="lazy"
                     className="w-full h-full object-cover animate-zoom-bg" 
                 />
                 {/* Overlay dégradé sombre pour la lisibilité du texte */}

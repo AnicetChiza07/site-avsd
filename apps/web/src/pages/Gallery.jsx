@@ -204,6 +204,7 @@ const Gallery = () => {
                                         <img 
                                             src={img.image.startsWith('http') ? img.image : `${getBaseUrl()}${img.image}`}
                                             alt={img.title}
+                                            loading="lazy"
                                             className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-110"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -264,6 +265,7 @@ const Gallery = () => {
                         <img 
                             src={lightboxImage.image.startsWith('http') ? lightboxImage.image : `${getBaseUrl()}${lightboxImage.image}`}
                             alt={lightboxImage.title}
+                            loading="lazy"
                             className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
                         />
                         

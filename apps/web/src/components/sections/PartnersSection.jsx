@@ -67,6 +67,7 @@ const PartnersSection = () => {
                                 <img
                                     src={getImageUrl(partner.image)}
                                     alt={`Partenaire ${index + 1}`}
+                                    loading="lazy"
                                     className="max-w-full max-h-full object-contain transition-all duration-300 hover:scale-110"
                                 />
                             </div>

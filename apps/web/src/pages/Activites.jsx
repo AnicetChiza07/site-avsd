@@ -34,17 +34,17 @@ const Activites = () => {
             numberColor: "text-gray-400"
         },
         {
-        id: 3,
-        number: "03",
-        icon: Heart,
-        title: "Auto-prise en charge",
-        content: "Nous sensibilisons les femmes et jeunes filles à l'auto-prise en charge à travers des séances de réflexion sur le plein potentiel de chaque femme, pour son bien-être et celui de sa communauté tout entière.",
-        color: "bg-slate-800",
-        textColor: "text-white",
-        iconBg: "bg-white",
-        iconColor: "text-slate-800",
-        lineColor: "bg-white/20",
-        numberColor: "text-white/30"
+            id: 3,
+            number: "03",
+            icon: Heart,
+            title: "Auto-prise en charge",
+            content: "Nous sensibilisons les femmes et jeunes filles à l'auto-prise en charge à travers des séances de réflexion sur le plein potentiel de chaque femme, pour son bien-être et celui de sa communauté tout entière.",
+            color: "bg-slate-800",
+            textColor: "text-white",
+            iconBg: "bg-white",
+            iconColor: "text-slate-800",
+            lineColor: "bg-white/20",
+            numberColor: "text-white/30"
         }
     ];
 

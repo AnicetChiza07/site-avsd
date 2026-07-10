@@ -176,6 +176,7 @@ const Opportunites = () => {
                                                     : '/placeholder.jpg'
                                                 } 
                                                 alt={opportunity.title} 
+                                                loading="lazy"
                                                 className={`w-full h-full object-cover transition-transform duration-700 ${
                                                     active ? 'group-hover:scale-110' : ''
                                                 }`}

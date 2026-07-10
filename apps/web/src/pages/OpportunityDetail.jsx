@@ -45,15 +45,15 @@ const OpportunityDetail = () => {
         try {
             const response = await fetch(fullUrl);
             if (!response.ok) throw new Error('Erreur lors du téléchargement');
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = fileName || 'offre-avsd.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = fileName || 'offre-avsd.pdf';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(blobUrl);
         } catch (error) {
             console.error('Erreur téléchargement:', error);
             window.open(fullUrl, '_blank');
@@ -104,6 +104,7 @@ const OpportunityDetail = () => {
                             ? (opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`) 
                             : '/placeholder.jpg'} 
                         alt={opportunity.title} 
+                        loading="lazy"
                         className="w-full h-full object-cover" 
                     />
                     <div className="absolute inset-0 bg-[#030d12]/95" />
@@ -178,6 +179,7 @@ const OpportunityDetail = () => {
                                         <img 
                                             src={opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`} 
                                             alt={opportunity.title} 
+                                            loading="lazy"
                                             className="w-full h-auto object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

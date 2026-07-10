@@ -11,7 +11,8 @@ const Error404 = () => {
                 <div  className="mb-8" style={{ animation: 'fadeInDown 0.8s ease-out both'}}>
                     <img 
                         src={errorImg} 
-                        alt="Page introuvable" 
+                        alt="Page introuvable"
+                        loading="lazy" 
                         className="w-full max-w-md mx-auto hover:scale-105 transition-transform duration-500"
                     />
                 </div>

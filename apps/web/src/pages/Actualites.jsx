@@ -109,7 +109,7 @@ const Actualites = () => {
                                 <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-200/50 shadow-xl hover:shadow-2xl transition-all duration-500 group">
                                     <div className="grid grid-cols-1 lg:grid-cols-2">
                                         <div className="relative h-64 lg:h-auto overflow-hidden">
-                                            <img src={featuredArticle.image ? (featuredArticle.image.startsWith('http') ? featuredArticle.image : `${getBaseUrl()}${featuredArticle.image}`) : '/placeholder.jpg'} alt={featuredArticle.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                                            <img src={featuredArticle.image ? (featuredArticle.image.startsWith('http') ? featuredArticle.image : `${getBaseUrl()}${featuredArticle.image}`) : '/placeholder.jpg'} alt={featuredArticle.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                             <div className="absolute top-4 left-4 px-4 py-2 bg-brand-blue text-white text-sm font-semibold rounded-full shadow-lg">À la une</div>
                                         </div>
                                         <div className="p-8 lg:p-12 flex flex-col justify-center">
@@ -161,7 +161,7 @@ const Actualites = () => {
                                     return (
                                         <Link to={`/actualites/${article.slug}`} key={article._id} className="group relative bg-white rounded-2xl overflow-hidden border border-gray-200/50 hover:border-brand-blue/30 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 block" style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both` }}>
                                             <div className="relative h-64 overflow-hidden">
-                                                <img src={article.image ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`) : '/placeholder.jpg'} alt={article.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                <img src={article.image ? (article.image.startsWith('http') ? article.image : `${getBaseUrl()}${article.image}`) : '/placeholder.jpg'} alt={article.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 
                                                 {/* OVERLAY SOMBRE - TOUJOURS VISIBLE */}
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
