@@ -5,6 +5,7 @@ import SEO from '../components/SEO';
 import articleService from '../services/articleService';
 import SkeletonText from '../components/ui/SkeletonText';
 import { getImageUrl, getBaseUrl } from '../services/api';
+import SchemaMarkup from '../components/SchemaMarkup';
 
 const ArticleDetail = () => {
     const { slug } = useParams();
@@ -120,6 +121,21 @@ const ArticleDetail = () => {
                 image={article.image ? getImageUrl(article.image) : undefined}
                 url={`/actualites/${article.slug}`}
             />
+
+            {/* Schema.org pour les articles */}
+            {article && (
+                <SchemaMarkup 
+                    type="article" 
+                    data={{
+                        title: article.title,
+                        excerpt: article.excerpt,
+                        image: article.image ? getImageUrl(article.image) : undefined,
+                        publishedAt: article.publishedAt || article.createdAt,
+                        updatedAt: article.updatedAt,
+                        slug: article.slug
+                    }} 
+                />
+            )}
 
             {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-center overflow-hidden">

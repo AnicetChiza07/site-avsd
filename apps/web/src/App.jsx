@@ -1,6 +1,7 @@
 import './App.css';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import SchemaMarkup from './components/SchemaMarkup';
 
 // Layouts
 import Header from './components/layouts/Header.jsx';
@@ -36,6 +37,8 @@ const MainLayout = () => {
 function App() {
     return (
         <HelmetProvider>
+            {/* Schema.org pour l'organisation */}
+            <SchemaMarkup type="organization" />
             <BrowserRouter>
                 <Routes>
                     {/* Routes avec Header et Footer */}

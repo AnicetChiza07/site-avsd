@@ -5,6 +5,7 @@ import {
     ExternalLink, CheckCircle, Clock, AlertCircle 
 } from 'lucide-react';
 import SEO from '../components/SEO';
+import SchemaMarkup from '../components/SchemaMarkup';
 import opportunityService from '../services/opportunityService';
 import { getBaseUrl } from '../services/api';
 
@@ -105,6 +106,22 @@ const OpportunityDetail = () => {
                 image={opportunity.image ? (opportunity.image.startsWith('http') ? opportunity.image : `${getBaseUrl()}${opportunity.image}`) : undefined}
                 url={`/opportunites/${opportunity._id}`}
             />
+
+            {/* Schema.org pour les opportunités */}
+            {opportunity && (
+                <SchemaMarkup 
+                    type="jobPosting" 
+                    data={{
+                        position: opportunity.position || opportunity.title,
+                        title: opportunity.title,
+                        description: opportunity.description,
+                        createdAt: opportunity.createdAt,
+                        endDate: opportunity.endDate,
+                        contractType: opportunity.contractType,
+                        location: opportunity.location
+                    }} 
+                />
+            )}
 
             {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-end overflow-hidden">
