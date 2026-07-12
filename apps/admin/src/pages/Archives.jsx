@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import { 
     Plus, Edit3, Trash2, X, Loader2, FileText, 
     AlertTriangle, Star, Image as ImageIcon, 
-    Calendar, Download
+    Calendar
 } from 'lucide-react';
 import AdminLayout from '../components/layout/AdminLayout';
 import archiveService from '../services/archiveService';
@@ -201,31 +201,23 @@ const Archives = () => {
         }
     };
 
-    const handleDownload = async (fileUrl, fileName) => {
-        if (!fileUrl) return;
-        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `${getBaseUrl()}${fileUrl}`;
-        try {
-            const response = await fetch(fullUrl);
-            if (!response.ok) throw new Error('Erreur lors du téléchargement');
-            const blob = await response.blob();
-            const blobUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = blobUrl;
-            link.download = fileName || 'document.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(blobUrl);
-        } catch (error) {
-            console.error('Erreur téléchargement:', error);
-            window.open(fullUrl, '_blank');
-        }
-    };
-
     // Filtrer les archives par année
     const filteredArchives = yearFilter 
         ? archives.filter(archive => new Date(archive.publishedAt || archive.createdAt).getFullYear().toString() === yearFilter)
         : archives;
+
+    // Formater la date et l'heure
+    const formatDateTime = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR', { 
+            day: 'numeric', 
+            month: 'short', 
+            year: 'numeric' 
+        }) + ' à ' + date.toLocaleTimeString('fr-FR', { 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        });
+    };
 
     // ===========================================
     // RENDU
@@ -299,7 +291,7 @@ const Archives = () => {
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th className="text-left px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Archive</th>
-                                    <th className="text-left px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                    <th className="text-left px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Date & Heure</th>
                                     <th className="text-right px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -333,28 +325,19 @@ const Archives = () => {
                                             </div>
                                         </td>
                                         
-                                        {/* COLONNE 2 : Date */}
+                                        {/* COLONNE 2 : Date et Heure */}
                                         <td className="px-4 py-2">
                                             <div className="flex items-center gap-1.5 text-[12px] text-gray-500 whitespace-nowrap">
                                                 <Calendar className="w-4 h-4 flex-shrink-0 text-gray-400" />
                                                 <span>
-                                                    {new Date(archive.publishedAt || archive.createdAt).toLocaleDateString('fr-FR', { 
-                                                        day: 'numeric', month: 'short', year: 'numeric' 
-                                                    })}
+                                                    {formatDateTime(archive.publishedAt || archive.createdAt)}
                                                 </span>
                                             </div>
                                         </td>
                                         
-                                        {/* COLONNE 3 : Actions */}
+                                        {/* COLONNE 3 : Actions (Modifier + Supprimer uniquement) */}
                                         <td className="px-4 py-2">
                                             <div className="flex items-center justify-end gap-1">
-                                                <button 
-                                                    onClick={() => handleDownload(archive.fileUrl, `${archive.title}.pdf`)}
-                                                    className="p-1.5 text-gray-400 hover:text-brand-blue hover:bg-blue-50 rounded-md transition-colors" 
-                                                    title="Télécharger"
-                                                >
-                                                    <Download className="w-4 h-4" />
-                                                </button>
                                                 <button 
                                                     onClick={() => openEditModal(archive)} 
                                                     className="p-1.5 text-gray-400 hover:text-brand-blue hover:bg-blue-50 rounded-md transition-colors" 
