@@ -5,6 +5,26 @@
 import multer from 'multer';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
 import cloudinary from '../config/cloudinary.js';
+import path from 'path';
+import fs from 'fs';
+
+// ===========================================
+// STOCKAGE LOCAL TEMPORAIRE (pour archives)
+// ===========================================
+const tempDir = path.join(process.cwd(), 'temp');
+if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+}
+
+const tempStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, tempDir);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    }
+});
 
 // ===========================================
 // CONFIGURATIONS DE STOCKAGE CLOUDINARY
@@ -36,7 +56,7 @@ const opportunityStorage = new CloudinaryStorage({
     params: {
         folder: 'avsd-rdc/opportunities',
         allowed_formats: ['pdf'],
-        resource_type: 'raw' // Important pour les PDF
+        resource_type: 'raw'
     }
 });
 
@@ -117,49 +137,56 @@ const imageFilter = (req, file, cb) => {
 const uploadArticleCover = multer({
     storage: articleCoverStorage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 const uploadArticleContent = multer({
     storage: articleContentStorage,
     fileFilter: imageFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 const uploadOpportunity = multer({
     storage: opportunityStorage,
     fileFilter,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10 Mo pour PDF
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 const uploadZone = multer({
     storage: zoneStorage,
     fileFilter: imageFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 const uploadPartner = multer({
     storage: partnerStorage,
     fileFilter: imageFilter,
-    limits: { fileSize: 2 * 1024 * 1024 } // 2 Mo pour logos
+    limits: { fileSize: 2 * 1024 * 1024 }
 });
 
 const uploadGallery = multer({
     storage: galleryStorage,
     fileFilter: imageFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo pour images
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 const uploadAvatar = multer({
     storage: avatarStorage,
     fileFilter: imageFilter,
-    limits: { fileSize: 2 * 1024 * 1024 } // 2 Mo
+    limits: { fileSize: 2 * 1024 * 1024 }
+});
+
+// Pour les archives (stockage local temporaire)
+const uploadArchive = multer({
+    storage: tempStorage,
+    fileFilter,
+    limits: { fileSize: 20 * 1024 * 1024 } // 20 Mo
 });
 
 const upload = multer({
     storage: articleCoverStorage,
     fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5 Mo (fallback)
+    limits: { fileSize: 5 * 1024 * 1024 }
 });
 
 // ===========================================
@@ -200,5 +227,6 @@ export {
     uploadPartner,
     uploadGallery,
     uploadAvatar,
+    uploadArchive,
     handleUploadError 
 };

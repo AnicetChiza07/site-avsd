@@ -7,7 +7,7 @@ import {
     deleteArchive
 } from '../controllers/archiveController.js';
 import { protect } from '../middleware/authMiddleware.js';
-import { upload } from '../middleware/uploadMiddleware.js';
+import { uploadArchive } from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -15,13 +15,13 @@ const router = express.Router();
 router.get('/', getArchives);
 router.get('/:slug', getArchiveBySlug);
 
-// Routes admin (protégées)
-router.post('/', protect, upload.fields([
+// Routes admin (protégées) - utilise uploadArchive (stockage local)
+router.post('/', protect, uploadArchive.fields([
     { name: 'coverImage', maxCount: 1 },
     { name: 'pdf', maxCount: 1 }
 ]), createArchive);
 
-router.put('/:id', protect, upload.fields([
+router.put('/:id', protect, uploadArchive.fields([
     { name: 'coverImage', maxCount: 1 },
     { name: 'pdf', maxCount: 1 }
 ]), updateArchive);
