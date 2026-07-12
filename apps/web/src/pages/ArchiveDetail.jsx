@@ -1,32 +1,34 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Calendar, Download, FileText, Share2 } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
+import { 
+    Calendar, ArrowLeft, Download, Share2, AlertCircle, FileText, Star
+} from 'lucide-react';
 import SEO from '../components/SEO';
 import archiveService from '../services/archiveService';
 import { getBaseUrl } from '../services/api';
 
 const ArchiveDetail = () => {
     const { slug } = useParams();
-    const navigate = useNavigate();
     const [archive, setArchive] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
     useEffect(() => {
         const fetchArchive = async () => {
             try {
+                setLoading(true);
+                setError(false);
                 const res = await archiveService.getArchiveBySlug(slug);
-                // res est directement l'archive (pas res.data)
-                const archive = res?.data || res;
-                setArchive(archive);
-            } catch (error) {
-                console.error('Erreur chargement archive:', error);
-                navigate('/archives');
+                setArchive(res.data || res);
+            } catch (err) {
+                console.error('Erreur chargement archive:', err);
+                setError(true);
             } finally {
                 setLoading(false);
             }
         };
         fetchArchive();
-    }, [slug, navigate]);
+    }, [slug]);
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -75,28 +77,30 @@ const ArchiveDetail = () => {
 
     if (loading) {
         return (
-            <section className="py-16 sm:py-24">
-                <div className="container">
-                    <div className="max-w-4xl mx-auto">
-                        <div className="h-96 bg-slate-200 rounded-2xl animate-pulse mb-8" />
-                        <div className="w-32 h-6 bg-slate-200 rounded animate-pulse mb-4" />
-                        <div className="w-full h-12 bg-slate-200 rounded animate-pulse mb-6" />
-                        <div className="w-full h-64 bg-slate-200 rounded animate-pulse" />
+            <section className="relative h-[60vh] flex items-center overflow-hidden bg-slate-900">
+                <div className="container relative z-10 flex flex-col justify-center h-full py-20">
+                    <div className="max-w-3xl space-y-6">
+                        <div className="w-32 h-8 bg-slate-700 rounded-full animate-shimmer" />
+                        <div className="w-3/4 h-12 bg-slate-700 rounded-xl animate-shimmer" />
+                        <div className="space-y-3">
+                            <div className="w-full h-4 bg-slate-700 rounded-full animate-shimmer" />
+                            <div className="w-5/6 h-4 bg-slate-700 rounded-full animate-shimmer" />
+                        </div>
                     </div>
                 </div>
             </section>
         );
     }
 
-    if (!archive) {
+    if (error || !archive) {
         return (
-            <section className="py-16 sm:py-24">
+            <section data-theme="light" className="pt-32 pb-16 min-h-screen flex items-center justify-center">
                 <div className="container text-center">
-                    <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">Archive introuvable</h2>
-                    <Link to="/archives" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-blue text-white font-semibold rounded-xl hover:bg-brand-blue/90 transition-all">
-                        <ArrowLeft className="w-5 h-5" />
-                        Retour aux archives
+                    <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-6" />
+                    <h1 className="text-4xl font-heading text-gray-900 mb-4">Archive introuvable</h1>
+                    <p className="text-gray-600 mb-8">Cette archive n'existe plus ou a été supprimée.</p>
+                    <Link to="/archives" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-blue text-white rounded-xl hover:bg-brand-blue/90 transition-colors">
+                        <ArrowLeft className="w-5 h-5" /> Retour aux archives
                     </Link>
                 </div>
             </section>
@@ -105,25 +109,70 @@ const ArchiveDetail = () => {
 
     return (
         <>
+            {/* SEO Dynamique */}
             <SEO 
                 title={archive.title}
                 description={archive.excerpt}
                 keywords={`archives AVSD, ${archive.title}, rapport RDC, document officiel`}
+                image={archive.coverImage ? (archive.coverImage.startsWith('http') ? archive.coverImage : `${getBaseUrl()}${archive.coverImage}`) : undefined}
                 url={`/archives/${archive.slug}`}
             />
 
+            {/* Hero Section - Style OpportunityDetail avec titre gradient */}
+            <section data-theme="dark" className="relative h-[60vh] flex items-end overflow-hidden">
+                <div className="absolute inset-0 z-0">
+                    <img 
+                        src={archive.coverImage 
+                            ? (archive.coverImage.startsWith('http') ? archive.coverImage : `${getBaseUrl()}${archive.coverImage}`) 
+                            : '/placeholder.jpg'} 
+                        alt={archive.title} 
+                        loading="lazy"
+                        className="w-full h-full object-cover" 
+                    />
+                    <div className="absolute inset-0 bg-[#030d12]/95" />
+                </div>
+                <div className="container relative z-10 pb-16">
+                    <div className="max-w-5xl">
+                        
+                        <Link 
+                            to="/archives" 
+                            className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium mb-6 transition-colors group"
+                        >
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            <span>Voir les archives</span>
+                        </Link>
+                        
+                        <div className="flex flex-wrap items-center gap-3 mb-6">
+                            <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-blue backdrop-blur-sm border border-brand-blue/30 rounded-lg text-sm font-bold text-white uppercase tracking-wide shadow-lg">
+                                <FileText className="w-4 h-4" />
+                                Archive
+                            </span>
+                            {archive.featured && (
+                                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded-lg text-sm font-bold backdrop-blur-sm shadow-lg">
+                                    <Star className="w-4 h-4 fill-yellow-300" /> À la une
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Titre en GRADIENT - Comme OpportunityDetail */}
+                        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6 drop-shadow-lg bg-gradient-to-r from-brand-blue to-brand-light bg-clip-text text-transparent">
+                            {archive.title}
+                        </h1>
+
+                        <div className="flex flex-wrap items-center gap-6 text-white/80 text-sm">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="w-5 h-5" />
+                                <span>Publié le {formatDate(archive.publishedAt || archive.createdAt)}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Contenu principal - SANS le lien retour */}
             <section className="py-16 sm:py-24">
                 <div className="container">
                     <div className="max-w-4xl mx-auto">
-                        {/* Bouton retour */}
-                        <Link 
-                            to="/archives" 
-                            className="inline-flex items-center gap-2 text-gray-600 hover:text-brand-blue transition-colors mb-8"
-                        >
-                            <ArrowLeft className="w-5 h-5" />
-                            <span>Retour aux archives</span>
-                        </Link>
-
                         {/* Image de couverture */}
                         <div className="relative rounded-2xl overflow-hidden mb-8 shadow-xl">
                             <img 
@@ -135,24 +184,6 @@ const ArchiveDetail = () => {
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                         </div>
-
-                        {/* Métadonnées */}
-                        <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                            <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4" />
-                                <span>{formatDate(archive.publishedAt || archive.createdAt)}</span>
-                            </div>
-                            {archive.featured && (
-                                <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs font-semibold rounded-full">
-                                    À la une
-                                </span>
-                            )}
-                        </div>
-
-                        {/* Titre */}
-                        <h1 className="text-4xl lg:text-5xl font-heading text-gray-900 mb-6 leading-tight">
-                            {archive.title}
-                        </h1>
 
                         {/* Synthèse */}
                         <p className="text-xl text-gray-600 leading-relaxed mb-8 pb-8 border-b border-gray-200">

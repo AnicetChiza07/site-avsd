@@ -8,6 +8,79 @@ import bgImage from '../assets/images/Hero/herobg.jpg';
 import archiveService from '../services/archiveService';
 import { getBaseUrl } from '../services/api';
 
+// Composant carte archive (défini en dehors pour éviter les re-renders)
+const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+    };
+
+    return (
+        <Link 
+            to={`/archives/${archive.slug}`} 
+            className={`group relative ${isFeatured ? 'h-[500px]' : 'h-96'} rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 block`}
+            style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both` }}
+        >
+            {/* Image de couverture en background */}
+            <img 
+                src={archive.coverImage 
+                    ? (archive.coverImage.startsWith('http') ? archive.coverImage : `${getBaseUrl()}${archive.coverImage}`)
+                    : '/placeholder.jpg'} 
+                alt={archive.title} 
+                loading="lazy" 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+            />
+
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20" />
+
+            {/* Contenu */}
+            <div className={`absolute inset-0 ${isFeatured ? 'p-8 lg:p-12' : 'p-6'} flex flex-col justify-between`}>
+                {/* Date en haut */}
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-900">
+                        <Calendar className="w-3.5 h-3.5" />
+                        <span>{formatDate(archive.publishedAt || archive.createdAt)}</span>
+                    </div>
+                    {archive.featured && (
+                        <span className="px-3 py-1.5 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full shadow-lg">
+                            À la une
+                        </span>
+                    )}
+                </div>
+
+                {/* Titre et description en bas */}
+                <div className="space-y-3">
+                    <h3 className={`${isFeatured ? 'text-2xl lg:text-3xl' : 'text-xl'} font-heading text-white mb-2 line-clamp-2 leading-tight drop-shadow-lg`}>
+                        {archive.title}
+                    </h3>
+                    <p className={`text-white/90 ${isFeatured ? 'text-base' : 'text-sm'} leading-relaxed line-clamp-2 drop-shadow-md`}>
+                        {archive.excerpt}
+                    </p>
+
+                    {/* Actions en bas */}
+                    <div className="flex items-center justify-between pt-2">
+                        <div className="inline-flex items-center gap-2 text-white/80 text-sm font-medium group/link">
+                            <span>Voir le document</span>
+                            <ArrowUpRight className="w-4 h-4 transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+                        </div>
+                        <button 
+                            onClick={(e) => onDownload(e, archive.fileUrl, `${archive.title}.pdf`)}
+                            className={`${isFeatured ? 'w-12 h-12' : 'w-11 h-11'} flex items-center justify-center bg-brand-blue hover:bg-blue-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110`}
+                            title="Télécharger le PDF"
+                        >
+                            <Download className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Bordure au hover */}
+            <div className="absolute inset-0 border-2 border-transparent group-hover:border-brand-blue/50 rounded-2xl transition-colors duration-500 pointer-events-none" />
+        </Link>
+    );
+};
+
 const Archives = () => {
     const [archives, setArchives] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,9 +92,8 @@ const Archives = () => {
         const fetchArchives = async () => {
             try {
                 const res = await archiveService.getArchives();
-                // res est directement le tableau (pas res.data)
-                const archives = Array.isArray(res) ? res : (res.data || []);
-                setArchives(archives);
+                const archivesData = Array.isArray(res) ? res : (res.data || []);
+                setArchives(archivesData);
             } catch (error) {
                 console.error('Erreur chargement archives:', error);
             } finally {
@@ -30,20 +102,6 @@ const Archives = () => {
         };
         fetchArchives();
     }, []);
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
-    };
-
-    const getDateParts = (dateString) => {
-        const date = new Date(dateString);
-        return {
-            day: date.getDate(),
-            month: date.toLocaleDateString('fr-FR', { month: 'short' }),
-            year: date.getFullYear()
-        };
-    };
 
     const years = useMemo(() => {
         if (archives.length === 0) return [];
@@ -115,72 +173,18 @@ const Archives = () => {
             
             <section data-theme="light" className="py-16 sm:py-24">
                 <div className="container">
+                    {/* Article à la une */}
                     {loading ? (
                         <div className="mb-16">
-                            <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-200/50 shadow-xl p-4">
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                                    <div className="h-64 lg:h-auto w-full bg-slate-200 rounded-xl animate-pulse" />
-                                    <div className="flex flex-col justify-center p-4">
-                                        <div className="w-24 h-6 bg-slate-200 rounded-full animate-pulse mb-4" />
-                                        <div className="w-full h-8 bg-slate-200 rounded animate-pulse mb-4" />
-                                        <div className="w-full h-20 bg-slate-200 rounded animate-pulse mb-6" />
-                                        <div className="w-40 h-10 bg-slate-200 rounded-xl animate-pulse" />
-                                    </div>
-                                </div>
-                            </div>
+                            <div className="relative h-[500px] bg-slate-200 rounded-2xl animate-pulse" />
                         </div>
                     ) : featuredArchive && (
                         <div className="mb-16">
-                            <Link to={`/archives/${featuredArchive.slug}`} className="block">
-                                <div className="relative bg-white rounded-2xl overflow-hidden border border-gray-200/50 shadow-xl hover:shadow-2xl transition-all duration-500 group">
-                                    <div className="grid grid-cols-1 lg:grid-cols-2">
-                                        <div className="relative h-64 lg:h-auto overflow-hidden">
-                                            <img 
-                                                src={featuredArchive.coverImage 
-                                                    ? (featuredArchive.coverImage.startsWith('http') ? featuredArchive.coverImage : `${getBaseUrl()}${featuredArchive.coverImage}`)
-                                                    : '/placeholder.jpg'} 
-                                                alt={featuredArchive.title} 
-                                                loading="lazy" 
-                                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
-                                            />
-                                            <div className="absolute top-4 left-4 px-4 py-2 bg-brand-blue text-white text-sm font-semibold rounded-full shadow-lg">À la une</div>
-                                        </div>
-                                        <div className="p-8 lg:p-12 flex flex-col justify-center">
-                                            <h2 className="text-2xl lg:text-3xl font-heading text-gray-900 mb-4 group-hover:text-brand-blue transition-colors duration-300">
-                                                {featuredArchive.title}
-                                            </h2>
-                                            
-                                            <p className="text-gray-600 text-base leading-relaxed mb-6">
-                                                {featuredArchive.excerpt}
-                                            </p>
-                                            
-                                            <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4" />
-                                                    <span>{formatDate(featuredArchive.publishedAt || featuredArchive.createdAt)}</span>
-                                                </div>
-                                            </div>
-                                            
-                                            <div className="flex gap-3">
-                                                <div className="inline-flex items-center gap-2 px-6 py-3 bg-brand-blue text-white font-semibold rounded-xl hover:bg-brand-blue/90 transition-all duration-300 shadow-lg shadow-brand-blue/30 hover:shadow-xl group/link">
-                                                    <span>Voir le détail</span>
-                                                    <ArrowUpRight className="w-5 h-5 transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform duration-300" />
-                                                </div>
-                                                <button 
-                                                    onClick={(e) => handleDownload(e, featuredArchive.fileUrl, `${featuredArchive.title}.pdf`)}
-                                                    className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all duration-300"
-                                                >
-                                                    <Download className="w-5 h-5" />
-                                                    <span>Télécharger</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <ArchiveCard archive={featuredArchive} index={0} isFeatured={true} onDownload={handleDownload} />
                         </div>
                     )}
 
+                    {/* Filtres par année */}
                     <SectionTitle 
                         badge="Filtrer par année" 
                         title="Parcourez nos archives" 
@@ -215,76 +219,22 @@ const Archives = () => {
                         </div>
                     )}
 
+                    {/* Grille d'archives */}
                     {loading ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {[1, 2, 3, 4, 5, 6].map(i => (
-                                <div key={i} className="bg-white rounded-2xl overflow-hidden border border-gray-200/50 shadow-sm">
-                                    <div className="h-64 bg-slate-200 animate-pulse" />
-                                    <div className="p-6">
-                                        <div className="w-24 h-4 bg-slate-200 rounded animate-pulse mb-3" />
-                                        <div className="w-full h-6 bg-slate-200 rounded animate-pulse mb-3" />
-                                        <div className="w-full h-16 bg-slate-200 rounded animate-pulse mb-4" />
-                                        <div className="w-32 h-10 bg-slate-200 rounded-xl animate-pulse" />
-                                    </div>
-                                </div>
+                                <div key={i} className="relative h-96 bg-slate-200 rounded-2xl animate-pulse" />
                             ))}
                         </div>
                     ) : currentArchives.length > 0 ? (
                         <>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {currentArchives.map((archive, index) => {
-                                    const dateParts = getDateParts(archive.publishedAt || archive.createdAt);
-                                    return (
-                                        <Link 
-                                            to={`/archives/${archive.slug}`} 
-                                            key={archive._id} 
-                                            className="group relative bg-white rounded-2xl overflow-hidden border border-gray-200/50 hover:border-brand-blue/30 shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 block"
-                                            style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both` }}
-                                        >
-                                            <div className="relative h-64 overflow-hidden">
-                                                <img 
-                                                    src={archive.coverImage 
-                                                        ? (archive.coverImage.startsWith('http') ? archive.coverImage : `${getBaseUrl()}${archive.coverImage}`)
-                                                        : '/placeholder.jpg'} 
-                                                    alt={archive.title} 
-                                                    loading="lazy" 
-                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                                                />
-                                                
-                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                                                
-                                                <div className="absolute top-4 right-4 flex flex-col items-center justify-center w-16 h-16 bg-white/95 backdrop-blur-sm rounded-xl shadow-sm">
-                                                    <span className="text-2xl font-bold text-brand-blue leading-none">{dateParts.day}</span>
-                                                    <span className="text-xs text-gray-600 uppercase mt-1">{dateParts.month}</span>
-                                                </div>
-                                                
-                                                <div className="absolute bottom-4 right-4 w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg">
-                                                    <ArrowUpRight className="w-5 h-5 text-white" strokeWidth={2.5} />
-                                                </div>
-                                            </div>
-                                            <div className="p-6">
-                                                <div className="flex items-center gap-4 text-xs text-gray-500 mb-3">
-                                                    <div className="flex items-center gap-1.5">
-                                                        <Calendar className="w-3.5 h-3.5" />
-                                                        <span>{formatDate(archive.publishedAt || archive.createdAt)}</span>
-                                                    </div>
-                                                </div>
-                                                <h3 className="text-xl font-heading text-gray-900 mb-3 line-clamp-2 group-hover:text-brand-blue transition-colors duration-300">
-                                                    {archive.title}
-                                                </h3>
-                                                <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">
-                                                    {archive.excerpt}
-                                                </p>
-                                                <div className="inline-flex items-center gap-2 text-brand-blue font-medium text-sm group/link">
-                                                    <span>Voir le détail</span>
-                                                    <ArrowUpRight className="w-4 h-4 transform group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform duration-300" />
-                                                </div>
-                                            </div>
-                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-blue to-brand-light transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left" />
-                                        </Link>
-                                    );
-                                })}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {currentArchives.map((archive, index) => (
+                                    <ArchiveCard key={archive._id} archive={archive} index={index} onDownload={handleDownload} />
+                                ))}
                             </div>
+
+                            {/* Pagination */}
                             {totalPages > 1 && (
                                 <div className="flex items-center justify-center gap-2 mt-12">
                                     <button 
