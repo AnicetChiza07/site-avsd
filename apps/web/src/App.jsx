@@ -15,6 +15,8 @@ import Activites from './pages/Activites.jsx';
 import Opportunites from './pages/Opportunites.jsx';
 import OpportunityDetail from './pages/OpportunityDetail.jsx';
 import Gallery from './pages/Gallery';
+import Archives from './pages/Archives.jsx';
+import ArchiveDetail from './pages/ArchiveDetail.jsx';
 import Contact from './pages/Contact.jsx';
 import Error404 from './pages/Error404.jsx';
 
@@ -50,6 +52,8 @@ function App() {
                         <Route path="/opportunites" element={<Opportunites />} />
                         <Route path="/opportunites/:id" element={<OpportunityDetail />} />
                         <Route path="/galerie" element={<Gallery />} />
+                        <Route path="/archives" element={<Archives />} />
+                        <Route path="/archives/:slug" element={<ArchiveDetail />} />
                         <Route path="/contact" element={<Contact />} />
                     </Route>
 

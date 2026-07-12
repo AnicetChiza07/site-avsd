@@ -6,6 +6,7 @@ import MissionSection from '../components/sections/MissionSection';
 import ZonesInterventionSection from '../components/sections/ZonesInterventionSection';
 import InterventionAreasSection from '../components/sections/InterventionAreasSection';
 import BlogSection from '../components/sections/BlogSection';
+import ArchivesSection from '../components/sections/ArchivesSection';
 import CTASection from '../components/sections/CTASection';
 import StatsSection from '../components/sections/StatsSection';
 
@@ -27,6 +28,7 @@ const Accueil = () => {
             <ZonesInterventionSection />
             <InterventionAreasSection />
             <BlogSection />
+            <ArchivesSection />
             <CTASection />
             <StatsSection />
         </div>

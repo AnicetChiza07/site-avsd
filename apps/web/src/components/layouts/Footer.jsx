@@ -66,6 +66,7 @@ const Footer = () => {
                                     { name: 'Les actualités', href: '/actualites', active: false },
                                     { name: 'Nos activités', href: '/activites', active: false },
                                     { name: 'Les opportunités', href: '/opportunites', active: false },
+                                    { name: 'Nos archives', href: '/archives', active: false },
                                     { name: 'Notre galerie', href: '/galerie', active: false },
                                     { name: 'Nous contacter', href: '/contact', active: false },
                                     ].map((link) => (
