@@ -43,18 +43,7 @@ const archiveSchema = new mongoose.Schema({
     timestamps: true
 });
 
-// Générer le slug automatiquement avant la sauvegarde
-archiveSchema.pre('save', function(next) {
-    if (this.isModified('title') && !this.slug) {
-        this.slug = this.title
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
-    }
-    next();
-});
+// Le slug est généré dans le contrôleur, pas besoin de hook pre('save')
 
 const Archive = mongoose.model('Archive', archiveSchema);
 
