@@ -19,8 +19,14 @@ const getArticlesByCategory = async () => {
     return response.data;
 };
 
+const getArchivesByYear = async () => {
+    const response = await api.get('/stats/archives/by-year');
+    return response.data;
+};
+
 export default {
     getStats,
     getMonthlyContacts,
-    getArticlesByCategory
+    getArticlesByCategory,
+    getArchivesByYear
 };

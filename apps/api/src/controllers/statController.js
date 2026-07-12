@@ -8,6 +8,7 @@ import Opportunity from '../models/Opportunity.js';
 import Category from '../models/Category.js';
 import Partner from '../models/Partner.js';
 import Gallery from '../models/Gallery.js';
+import Archive from '../models/Archive.js';
 
 const getStats = async (req, res) => {
     try {
@@ -19,7 +20,8 @@ const getStats = async (req, res) => {
             activeOpportunities,
             totalCategories,
             totalPartners,
-            totalGallery
+            totalGallery,
+            totalArchives
         ] = await Promise.all([
             Article.countDocuments(),
             Contact.countDocuments(),
@@ -31,7 +33,8 @@ const getStats = async (req, res) => {
             }),
             Category.countDocuments(),
             Partner.countDocuments(),
-            Gallery.countDocuments()
+            Gallery.countDocuments(),
+            Archive.countDocuments()
         ]);
 
         res.status(200).json({
@@ -48,7 +51,8 @@ const getStats = async (req, res) => {
                 },
                 categories: totalCategories,
                 partners: totalPartners,
-                gallery: totalGallery
+                gallery: totalGallery,
+                archives: totalArchives
             }
         });
     } catch (error) {
@@ -135,4 +139,30 @@ const getArticlesByCategory = async (req, res) => {
     }
 };
 
-export { getStats, getMonthlyContacts, getArticlesByCategory };
+const getArchivesByYear = async (req, res) => {
+    try {
+        const archives = await Archive.aggregate([
+            {
+                $group: {
+                    _id: { $year: '$publishedAt' },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: { '_id': -1 }
+            }
+        ]);
+
+        const yearData = archives.map(archive => ({
+            year: archive._id.toString(),
+            count: archive.count
+        }));
+
+        res.status(200).json({ success: true, data: yearData });
+    } catch (error) {
+        console.error('Erreur getArchivesByYear:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+export { getStats, getMonthlyContacts, getArticlesByCategory, getArchivesByYear };

@@ -6,11 +6,12 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { 
     Loader2, FileText, Mail, Briefcase, Tag, Building2,
-    TrendingUp, Minus, Image
+    TrendingUp, Minus, Image, FolderArchive
 } from 'lucide-react';
 import {
     LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    PieChart, Pie, Cell, Legend
+    PieChart, Pie, Cell, Legend,
+    BarChart, Bar
 } from 'recharts';
 import AdminLayout from '../components/layout/AdminLayout';
 import statService from '../services/statService';
@@ -20,19 +21,22 @@ const Statistics = () => {
     const [stats, setStats] = useState(null);
     const [monthlyContacts, setMonthlyContacts] = useState([]);
     const [articlesByCategory, setArticlesByCategory] = useState([]);
+    const [archivesByYear, setArchivesByYear] = useState([]);
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
                 setLoading(true);
-                const [statsRes, monthlyRes, categoryRes] = await Promise.all([
+                const [statsRes, monthlyRes, categoryRes, archivesRes] = await Promise.all([
                     statService.getStats(),
                     statService.getMonthlyContacts(),
-                    statService.getArticlesByCategory()
+                    statService.getArticlesByCategory(),
+                    statService.getArchivesByYear()
                 ]);
                 setStats(statsRes.data);
                 setMonthlyContacts(monthlyRes.data);
                 setArticlesByCategory(categoryRes.data);
+                setArchivesByYear(archivesRes.data);
             } catch {
                 toast.error('Impossible de charger les statistiques');
             } finally {
@@ -63,7 +67,7 @@ const Statistics = () => {
                 <p className="text-gray-600 mt-2">Vue d'ensemble de votre site AVSD</p>
             </div>
 
-            {/* Cartes de statistiques - 3 en haut, 3 en bas */}
+            {/* Cartes de statistiques */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 {/* Articles */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
@@ -78,6 +82,22 @@ const Statistics = () => {
                             {stats?.articles || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Articles publiés</p>
+                    </div>
+                </div>
+
+                {/* Archives */}
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
+                            <FolderArchive className="w-6 h-6 text-cyan-600" />
+                        </div>
+                        <TrendingUp className="w-4 h-4 text-green-600" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                        <h3 className="text-3xl font-bold text-gray-900">
+                            {stats?.archives || 0}
+                        </h3>
+                        <p className="text-sm text-gray-500">Archives publiées</p>
                     </div>
                 </div>
 
@@ -151,7 +171,7 @@ const Statistics = () => {
                     </div>
                 </div>
 
-                {/* NOUVEAU : Galerie */}
+                {/* Galerie */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
                         <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
@@ -169,7 +189,7 @@ const Statistics = () => {
             </div>
 
             {/* Graphiques */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 {/* Graphique linéaire : Contacts par mois */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <h2 className="text-xl font-bold text-gray-900 mb-6">
@@ -237,6 +257,34 @@ const Statistics = () => {
                         </ResponsiveContainer>
                     )}
                 </div>
+            </div>
+
+            {/* Graphique Archives par année */}
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">
+                    Archives par année
+                </h2>
+                {archivesByYear.length === 0 ? (
+                    <div className="flex items-center justify-center h-64 text-gray-400">
+                        <p>Aucune donnée disponible</p>
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={archivesByYear}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                            <XAxis dataKey="year" stroke="#6b7280" />
+                            <YAxis stroke="#6b7280" allowDecimals={false} />
+                            <Tooltip 
+                                contentStyle={{ 
+                                    backgroundColor: '#fff', 
+                                    border: '1px solid #e5e7eb',
+                                    borderRadius: '0.5rem'
+                                }}
+                            />
+                            <Bar dataKey="count" fill="#06b6d4" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
             </div>
         </AdminLayout>
     );
