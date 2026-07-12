@@ -30,8 +30,8 @@ export const getArchives = async (req, res) => {
         
         res.json(archives);
     } catch (error) {
-        console.error('Erreur getArchives:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
+        console.error('❌ Erreur getArchives:', error.message);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
 
@@ -48,8 +48,8 @@ export const getArchiveBySlug = async (req, res) => {
         
         res.json(archive);
     } catch (error) {
-        console.error('Erreur getArchiveBySlug:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
+        console.error('❌ Erreur getArchiveBySlug:', error.message);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
 
@@ -58,15 +58,21 @@ export const getArchiveBySlug = async (req, res) => {
 // @access  Admin
 export const createArchive = async (req, res) => {
     try {
+        console.log('📥 Début création archive');
+        console.log('📦 Body:', req.body);
+        console.log('📎 Files:', req.files);
+        
         const { title, excerpt, description } = req.body;
         
         // Vérifier que les fichiers sont uploadés
         if (!req.files || !req.files.coverImage || !req.files.pdf) {
+            console.error('❌ Fichiers manquants:', req.files);
             return res.status(400).json({ 
                 message: 'L\'image de couverture et le PDF sont obligatoires' 
             });
         }
         
+        console.log('🖼️ Upload image...');
         // Upload image de couverture sur Cloudinary
         const coverImageResult = await cloudinary.uploader.upload(
             req.files.coverImage[0].path,
@@ -79,7 +85,9 @@ export const createArchive = async (req, res) => {
                 ]
             }
         );
+        console.log('✅ Image uploadée:', coverImageResult.secure_url);
         
+        console.log('📄 Upload PDF...');
         // Upload PDF sur Cloudinary
         const pdfResult = await cloudinary.uploader.upload(
             req.files.pdf[0].path,
@@ -89,7 +97,9 @@ export const createArchive = async (req, res) => {
                 format: 'pdf'
             }
         );
+        console.log('✅ PDF uploadé:', pdfResult.secure_url);
         
+        console.log('💾 Sauvegarde en base...');
         // Créer l'archive
         const archive = await Archive.create({
             title,
@@ -99,10 +109,16 @@ export const createArchive = async (req, res) => {
             fileUrl: pdfResult.secure_url
         });
         
+        console.log('✅ Archive créée:', archive._id);
         res.status(201).json(archive);
     } catch (error) {
-        console.error('Erreur createArchive:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
+        console.error('❌ ERREUR createArchive:');
+        console.error('Message:', error.message);
+        console.error('Stack:', error.stack);
+        res.status(500).json({ 
+            message: 'Erreur serveur',
+            error: error.message 
+        });
     }
 };
 
@@ -172,8 +188,8 @@ export const updateArchive = async (req, res) => {
         
         res.json(archive);
     } catch (error) {
-        console.error('Erreur updateArchive:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
+        console.error('❌ Erreur updateArchive:', error.message);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
 
@@ -206,7 +222,7 @@ export const deleteArchive = async (req, res) => {
         
         res.json({ message: 'Archive supprimée avec succès' });
     } catch (error) {
-        console.error('Erreur deleteArchive:', error);
-        res.status(500).json({ message: 'Erreur serveur' });
+        console.error('❌ Erreur deleteArchive:', error.message);
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };

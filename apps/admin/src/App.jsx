@@ -24,7 +24,7 @@ import Zones from './pages/Zones';
 import Milieux from './pages/Milieux';
 import Profile from './pages/Profile';
 import Gallery from './pages/Gallery';
-import Archives from './pages/ArchivesList';
+import Archives from './pages/Archives';
 
 // ===========================================
 // COMPOSANT DE PROTECTION DES ROUTES
