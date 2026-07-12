@@ -47,7 +47,6 @@ const Archives = () => {
                 const res = await archiveService.getArchives();
                 setArchives(res.data);
                 
-                // Extraire les années uniques
                 const years = [...new Set(res.data.map(archive => 
                     new Date(archive.publishedAt || archive.createdAt).getFullYear()
                 ))].sort((a, b) => b - a);
@@ -164,7 +163,14 @@ const Archives = () => {
                 toast.success('Archive créée avec succès');
             }
             
-            await fetchArchives();
+            // Recharger la liste
+            const res = await archiveService.getArchives();
+            setArchives(res.data);
+            const years = [...new Set(res.data.map(archive => 
+                new Date(archive.publishedAt || archive.createdAt).getFullYear()
+            ))].sort((a, b) => b - a);
+            setAvailableYears(years);
+            
             closeModal();
         } catch (err) {
             console.error('Erreur complète:', err);
@@ -180,7 +186,15 @@ const Archives = () => {
         try {
             await archiveService.deleteArchive(deleteModal.archive._id);
             toast.success('Archive supprimée');
-            setArchives(archives.filter(a => a._id !== deleteModal.archive._id));
+            
+            // Recharger la liste
+            const res = await archiveService.getArchives();
+            setArchives(res.data);
+            const years = [...new Set(res.data.map(archive => 
+                new Date(archive.publishedAt || archive.createdAt).getFullYear()
+            ))].sort((a, b) => b - a);
+            setAvailableYears(years);
+            
             setDeleteModal({ open: false, archive: null });
         } catch {
             toast.error('Erreur lors de la suppression');
