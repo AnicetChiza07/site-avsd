@@ -19,7 +19,9 @@ const Archives = () => {
         const fetchArchives = async () => {
             try {
                 const res = await archiveService.getArchives();
-                setArchives(res.data);
+                // res est directement le tableau (pas res.data)
+                const archives = Array.isArray(res) ? res : (res.data || []);
+                setArchives(archives);
             } catch (error) {
                 console.error('Erreur chargement archives:', error);
             } finally {

@@ -13,7 +13,9 @@ const ArchivesSection = () => {
         const fetchArchives = async () => {
             try {
                 const res = await archiveService.getArchives({ featured: 'true' });
-                setArchives(res.data.slice(0, 3));
+                // res est directement le tableau (pas res.data)
+                const archives = Array.isArray(res) ? res : (res.data || []);
+                setArchives(archives.slice(0, 3));
             } catch (error) {
                 console.error('Erreur chargement archives:', error);
             } finally {

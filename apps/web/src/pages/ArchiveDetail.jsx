@@ -15,7 +15,9 @@ const ArchiveDetail = () => {
         const fetchArchive = async () => {
             try {
                 const res = await archiveService.getArchiveBySlug(slug);
-                setArchive(res.data);
+                // res est directement l'archive (pas res.data)
+                const archive = res?.data || res;
+                setArchive(archive);
             } catch (error) {
                 console.error('Erreur chargement archive:', error);
                 navigate('/archives');
