@@ -68,17 +68,17 @@ const Statistics = () => {
             </div>
 
             {/* Cartes de statistiques */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 {/* Articles */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                            <FileText className="w-6 h-6 text-brand-blue" />
+                        <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <FileText className="w-5 h-5 text-brand-blue" />
                         </div>
                         <TrendingUp className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.articles || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Articles publiés</p>
@@ -88,13 +88,13 @@ const Statistics = () => {
                 {/* Archives */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center">
-                            <FolderArchive className="w-6 h-6 text-cyan-600" />
+                        <div className="w-10 h-10 bg-cyan-100 rounded-lg flex items-center justify-center">
+                            <FolderArchive className="w-5 h-5 text-cyan-600" />
                         </div>
                         <TrendingUp className="w-4 h-4 text-green-600" />
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.archives || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Archives publiées</p>
@@ -104,8 +104,8 @@ const Statistics = () => {
                 {/* Messages */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                            <Mail className="w-6 h-6 text-purple-600" />
+                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                            <Mail className="w-5 h-5 text-purple-600" />
                         </div>
                         {stats?.contacts?.unread > 0 && (
                             <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
@@ -114,7 +114,7 @@ const Statistics = () => {
                         )}
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.contacts?.total || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Messages reçus</p>
@@ -124,15 +124,15 @@ const Statistics = () => {
                 {/* Opportunités */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                            <Briefcase className="w-6 h-6 text-green-600" />
+                        <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                            <Briefcase className="w-5 h-5 text-green-600" />
                         </div>
                         <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
                             <span>{stats?.opportunities?.active || 0}</span>
                         </div>
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.opportunities?.total || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Opportunités</p>
@@ -142,13 +142,13 @@ const Statistics = () => {
                 {/* Catégories */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                            <Tag className="w-6 h-6 text-orange-600" />
+                        <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                            <Tag className="w-5 h-5 text-orange-600" />
                         </div>
                         <Minus className="w-4 h-4 text-gray-400" />
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.categories || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Catégories</p>
@@ -158,13 +158,13 @@ const Statistics = () => {
                 {/* Partenaires */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-teal-100 rounded-xl flex items-center justify-center">
-                            <Building2 className="w-6 h-6 text-teal-600" />
+                        <div className="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center">
+                            <Building2 className="w-5 h-5 text-teal-600" />
                         </div>
                         <Minus className="w-4 h-4 text-gray-400" />
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.partners || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Partenaires</p>
@@ -174,13 +174,13 @@ const Statistics = () => {
                 {/* Galerie */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center justify-between mb-4">
-                        <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                            <Image className="w-6 h-6 text-pink-600" />
+                        <div className="w-10 h-10 bg-pink-100 rounded-lg flex items-center justify-center">
+                            <Image className="w-5 h-5 text-pink-600" />
                         </div>
                         <Minus className="w-4 h-4 text-gray-400" />
                     </div>
                     <div className="flex items-baseline gap-2">
-                        <h3 className="text-3xl font-bold text-gray-900">
+                        <h3 className="text-2xl font-bold text-gray-900">
                             {stats?.gallery || 0}
                         </h3>
                         <p className="text-sm text-gray-500">Images galerie</p>
