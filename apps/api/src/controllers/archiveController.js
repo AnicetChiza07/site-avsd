@@ -1,5 +1,6 @@
 import Archive from '../models/Archive.js';
 import cloudinary from '../config/cloudinary.js';
+import fs from 'fs';
 
 // @desc    Obtenir toutes les archives
 // @route   GET /api/archives
@@ -99,10 +100,19 @@ export const createArchive = async (req, res) => {
         );
         console.log('✅ PDF uploadé:', pdfResult.secure_url);
         
+        // Générer le slug à partir du titre
+        const slug = title
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-|-$/g, '');
+        
         console.log('💾 Sauvegarde en base...');
         // Créer l'archive
         const archive = await Archive.create({
             title,
+            slug,
             excerpt,
             description,
             coverImage: coverImageResult.secure_url,
@@ -110,6 +120,19 @@ export const createArchive = async (req, res) => {
         });
         
         console.log('✅ Archive créée:', archive._id);
+        
+        // Nettoyer les fichiers temporaires
+        try {
+            if (req.files.coverImage[0].path) {
+                fs.unlinkSync(req.files.coverImage[0].path);
+            }
+            if (req.files.pdf[0].path) {
+                fs.unlinkSync(req.files.pdf[0].path);
+            }
+        } catch (cleanupError) {
+            console.warn('⚠️ Erreur nettoyage fichiers temporaires:', cleanupError.message);
+        }
+        
         res.status(201).json(archive);
     } catch (error) {
         console.error('❌ ERREUR createArchive:');
@@ -136,7 +159,16 @@ export const updateArchive = async (req, res) => {
         const { title, excerpt, description, featured } = req.body;
         
         // Mettre à jour les champs texte
-        if (title) archive.title = title;
+        if (title) {
+            archive.title = title;
+            // Régénérer le slug si le titre change
+            archive.slug = title
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-|-$/g, '');
+        }
         if (excerpt) archive.excerpt = excerpt;
         if (description) archive.description = description;
         if (featured !== undefined) archive.featured = featured;
@@ -161,6 +193,13 @@ export const updateArchive = async (req, res) => {
                 }
             );
             archive.coverImage = coverImageResult.secure_url;
+            
+            // Nettoyer fichier temporaire
+            try {
+                fs.unlinkSync(req.files.coverImage[0].path);
+            } catch (e) {
+                console.warn('⚠️ Erreur nettoyage image:', e.message);
+            }
         }
         
         // Upload nouveau PDF si fourni
@@ -182,6 +221,13 @@ export const updateArchive = async (req, res) => {
                 }
             );
             archive.fileUrl = pdfResult.secure_url;
+            
+            // Nettoyer fichier temporaire
+            try {
+                fs.unlinkSync(req.files.pdf[0].path);
+            } catch (e) {
+                console.warn('⚠️ Erreur nettoyage PDF:', e.message);
+            }
         }
         
         await archive.save();
@@ -189,6 +235,7 @@ export const updateArchive = async (req, res) => {
         res.json(archive);
     } catch (error) {
         console.error('❌ Erreur updateArchive:', error.message);
+        console.error('Stack:', error.stack);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
