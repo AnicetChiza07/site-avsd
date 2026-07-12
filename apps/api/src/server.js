@@ -26,6 +26,7 @@ import partnerRoutes from './routes/partnerRoutes.js';
 import profileRoutes from './routes/profileRoutes.js';
 import galleryCategoryRoutes from './routes/galleryCategoryRoutes.js';
 import galleryRoutes from './routes/galleryRoutes.js';
+import archiveRoutes from './routes/archiveRoutes.js';
 
 // ===========================================
 // CONFIGURATION INITIALE
@@ -140,6 +141,9 @@ app.use('/api/profile', profileRoutes);
 // Gallery
 app.use('/api/gallery/categories', galleryCategoryRoutes);
 app.use('/api/gallery', galleryRoutes);
+
+// Archives
+app.use('/api/archives', archiveRoutes);
 
 // ===========================================
 // GESTION DES ERREURS 404

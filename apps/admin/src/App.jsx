@@ -24,6 +24,8 @@ import Zones from './pages/Zones';
 import Milieux from './pages/Milieux';
 import Profile from './pages/Profile';
 import Gallery from './pages/Gallery';
+import ArchivesList from './pages/ArchivesList';
+import ArchiveForm from './pages/ArchiveForm';
 
 // ===========================================
 // COMPOSANT DE PROTECTION DES ROUTES
@@ -158,6 +160,32 @@ const App = () => {
                     element={
                         <ProtectedRoute>
                             <Gallery />
+                        </ProtectedRoute>
+                    } 
+                />
+
+                {/* Routes Archives */}
+                <Route 
+                    path="/archives" 
+                    element={
+                        <ProtectedRoute>
+                            <ArchivesList />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/archives/new" 
+                    element={
+                        <ProtectedRoute>
+                            <ArchiveForm />
+                        </ProtectedRoute>
+                    } 
+                />
+                <Route 
+                    path="/archives/edit/:id" 
+                    element={
+                        <ProtectedRoute>
+                            <ArchiveForm />
                         </ProtectedRoute>
                     } 
                 />

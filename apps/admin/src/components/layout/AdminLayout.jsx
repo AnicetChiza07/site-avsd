@@ -7,7 +7,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { 
     LayoutDashboard, FileText, Tag, Briefcase, BarChart3, Image,
-    Mail, Map, MapPin, RefreshCw, Building2, LogOut, Menu, X
+    Mail, Map, MapPin, RefreshCw, Building2, LogOut, Menu, X, FolderArchive
 } from 'lucide-react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { getImageUrl } from '../../services/api';
@@ -77,6 +77,7 @@ const AdminLayout = ({ children }) => {
                 { path: '/articles', label: 'Articles', icon: FileText },
                 { path: '/categories', label: 'Catégories', icon: Tag },
                 { path: '/opportunities', label: 'Opportunités', icon: Briefcase },
+                { path: '/archives', label: 'Archives', icon: FolderArchive },
                 { path: '/statistics', label: 'Statistiques', icon: BarChart3 },
             ]
         },
@@ -102,13 +103,13 @@ const AdminLayout = ({ children }) => {
         },
     ];
 
-    // Fonction pour obtenir le titre de la page
     const getPageTitle = () => {
         const titles = {
             '/dashboard': 'Tableau de bord',
             '/articles': 'Gestion des articles',
             '/categories': 'Catégories',
             '/opportunities': 'Opportunités',
+            '/archives': 'Archives',
             '/statistics': 'Statistiques',
             '/gallery': 'Galerie',
             '/contacts': 'Messages',
