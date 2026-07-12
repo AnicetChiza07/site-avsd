@@ -15,15 +15,18 @@ import {
     TrendingUp,
     Clock,
     Loader2,
-    Image
+    Image,
+    FolderArchive
 } from 'lucide-react';
 import AdminLayout from '../components/layout/AdminLayout';
 import dashboardService from '../services/dashboardService';
+import { getBaseUrl } from '../services/api';
 
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [recentContacts, setRecentContacts] = useState([]);
     const [recentArticles, setRecentArticles] = useState([]);
+    const [recentArchives, setRecentArchives] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -31,15 +34,17 @@ const Dashboard = () => {
             try {
                 setLoading(true);
                 
-                const [statsRes, contactsRes, articlesRes] = await Promise.all([
+                const [statsRes, contactsRes, articlesRes, archivesRes] = await Promise.all([
                     dashboardService.getStats(),
                     dashboardService.getRecentContacts(),
-                    dashboardService.getRecentArticles()
+                    dashboardService.getRecentArticles(),
+                    dashboardService.getRecentArchives()
                 ]);
 
                 setStats(statsRes.data);
                 setRecentContacts(contactsRes.data);
                 setRecentArticles(articlesRes.data);
+                setRecentArchives(archivesRes.data);
 
             } catch (error) {
                 console.error('Erreur chargement dashboard:', error);
@@ -58,6 +63,13 @@ const Dashboard = () => {
             icon: FileText,
             color: 'bg-blue-500',
             link: '/articles'
+        },
+        {
+            title: 'Archives',
+            value: stats?.archives || 0,
+            icon: FolderArchive,
+            color: 'bg-cyan-500',
+            link: '/archives'
         },
         {
             title: 'Opportunités',
@@ -175,7 +187,7 @@ const Dashboard = () => {
             </div>
 
             {/* Derniers messages et articles */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                 
                 {/* Derniers messages */}
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -269,6 +281,65 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+            </div>
+
+            {/* Archives récentes - Nouvelle section */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-xl font-bold text-gray-900">
+                        Archives récentes
+                    </h2>
+                    <Link to="/archives" className="text-sm text-brand-blue hover:underline">
+                        Voir tout
+                    </Link>
+                </div>
+                <div className="space-y-4">
+                    {recentArchives.length === 0 ? (
+                        <p className="text-gray-500 text-center py-8">
+                            Aucune archive publiée
+                        </p>
+                    ) : (
+                        recentArchives.map((archive) => (
+                            <div key={archive._id} className="flex items-start gap-4 pb-4 border-b border-gray-100 last:border-0">
+                                <div className="w-14 h-14 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 border border-gray-200">
+                                    <img 
+                                        src={archive.coverImage 
+                                            ? (archive.coverImage.startsWith('http') ? archive.coverImage : `${getBaseUrl()}${archive.coverImage}`)
+                                            : '/placeholder.jpg'
+                                        } 
+                                        alt={archive.title} 
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="font-semibold text-gray-900 truncate">
+                                        {archive.title}
+                                    </p>
+                                    <p className="text-sm text-gray-600 truncate">
+                                        {archive.excerpt}
+                                    </p>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <Clock className="w-3 h-3 text-gray-400" />
+                                        <p className="text-xs text-gray-500">
+                                            {new Date(archive.publishedAt || archive.createdAt).toLocaleDateString('fr-FR', { 
+                                                day: 'numeric', 
+                                                month: 'short', 
+                                                year: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            })}
+                                        </p>
+                                        {archive.featured && (
+                                            <span className="px-2 py-0.5 bg-yellow-100 text-yellow-700 text-xs rounded-full">
+                                                À la une
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </AdminLayout>
     );

@@ -10,6 +10,7 @@ import ZoneIntervention from '../models/ZoneIntervention.js';
 import MilieuIntervention from '../models/MilieuIntervention.js';
 import Partner from '../models/Partner.js';
 import Gallery from '../models/Gallery.js';
+import Archive from '../models/Archive.js';
 
 const getStats = async (req, res) => {
     try {
@@ -23,7 +24,8 @@ const getStats = async (req, res) => {
             zones,
             milieux,
             partners,
-            gallery
+            gallery,
+            archives
         ] = await Promise.all([
             Article.countDocuments(),
             Contact.countDocuments(),
@@ -37,7 +39,8 @@ const getStats = async (req, res) => {
             ZoneIntervention.countDocuments(),
             MilieuIntervention.countDocuments(),
             Partner.countDocuments(),
-            Gallery.countDocuments()
+            Gallery.countDocuments(),
+            Archive.countDocuments()
         ]);
 
         res.status(200).json({
@@ -56,7 +59,8 @@ const getStats = async (req, res) => {
                 zones,
                 milieux,
                 partners,
-                gallery
+                gallery,
+                archives
             }
         });
     } catch (error) {
@@ -92,4 +96,17 @@ const getRecentArticles = async (req, res) => {
     }
 };
 
-export { getStats, getRecentContacts, getRecentArticles };
+const getRecentArchives = async (req, res) => {
+    try {
+        const archives = await Archive.find()
+            .sort({ publishedAt: -1, createdAt: -1 })
+            .limit(5);
+        
+        res.status(200).json({ success: true, data: archives });
+    } catch (error) {
+        console.error('Erreur getRecentArchives:', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
+    }
+};
+
+export { getStats, getRecentContacts, getRecentArticles, getRecentArchives };

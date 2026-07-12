@@ -19,8 +19,14 @@ const getRecentArticles = async () => {
     return response.data;
 };
 
+const getRecentArchives = async () => {
+    const response = await api.get('/dashboard/archives/recent');
+    return response.data;
+};
+
 export default {
     getStats,
     getRecentContacts,
-    getRecentArticles
+    getRecentArticles,
+    getRecentArchives
 };
