@@ -2,6 +2,22 @@ import Archive from '../models/Archive.js';
 import cloudinary from '../config/cloudinary.js';
 import fs from 'fs';
 
+// Fonction helper pour générer les initiales à partir d'un nom
+const generateInitials = (name) => {
+    if (!name) return 'AVSD';
+    
+    // Séparer le nom en parties (nom + post-nom)
+    const parts = name.trim().split(/\s+/);
+    
+    if (parts.length === 1) {
+        // Un seul mot : prendre les 2 premières lettres
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+    
+    // Plusieurs mots : prendre la première lettre des 2 premiers mots
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+};
+
 // @desc    Obtenir toutes les archives
 // @route   GET /api/archives
 // @access  Public
@@ -31,7 +47,7 @@ export const getArchives = async (req, res) => {
         
         res.json(archives);
     } catch (error) {
-        console.error('❌ Erreur getArchives:', error.message);
+        console.error('Erreur getArchives:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
@@ -49,7 +65,7 @@ export const getArchiveBySlug = async (req, res) => {
         
         res.json(archive);
     } catch (error) {
-        console.error('❌ Erreur getArchiveBySlug:', error.message);
+        console.error('Erreur getArchiveBySlug:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
@@ -59,13 +75,13 @@ export const getArchiveBySlug = async (req, res) => {
 // @access  Admin
 export const createArchive = async (req, res) => {
     try {
-        console.log('📥 Début création archive');
+        console.log('Début création archive');
         
         const { title, excerpt, description, featured } = req.body;
         
         // Vérifier que les fichiers sont uploadés
         if (!req.files || !req.files.coverImage || !req.files.pdf) {
-            console.error('❌ Fichiers manquants:', req.files);
+            console.error('Fichiers manquants:', req.files);
             return res.status(400).json({ 
                 message: 'L\'image de couverture et le PDF sont obligatoires' 
             });
@@ -74,10 +90,14 @@ export const createArchive = async (req, res) => {
         // Si cette archive est "à la une", décocher toutes les autres
         if (featured === 'true' || featured === true) {
             await Archive.updateMany({}, { $set: { featured: false } });
-            console.log('✅ Autres archives décochées');
+            console.log('Autres archives décochées');
         }
         
-        console.log('🖼️ Upload image...');
+        // NOUVEAU : Récupérer les infos de l'auteur depuis l'utilisateur connecté
+        const authorName = req.user ? `${req.user.name || ''} ${req.user.postName || ''}`.trim() : 'AVSD RDC';
+        const authorInitials = generateInitials(authorName);
+        
+        console.log('Upload image...');
         const coverImageResult = await cloudinary.uploader.upload(
             req.files.coverImage[0].path,
             {
@@ -90,7 +110,7 @@ export const createArchive = async (req, res) => {
             }
         );
         
-        console.log('📄 Upload PDF...');
+        console.log('Upload PDF...');
         const pdfResult = await cloudinary.uploader.upload(
             req.files.pdf[0].path,
             {
@@ -107,7 +127,7 @@ export const createArchive = async (req, res) => {
             .replace(/[^a-z0-9]+/g, '-')
             .replace(/^-|-$/g, '');
         
-        console.log('💾 Sauvegarde en base...');
+        console.log('Sauvegarde en base...');
         const archive = await Archive.create({
             title,
             slug,
@@ -115,10 +135,14 @@ export const createArchive = async (req, res) => {
             description,
             coverImage: coverImageResult.secure_url,
             fileUrl: pdfResult.secure_url,
-            featured: featured === 'true' || featured === true
+            featured: featured === 'true' || featured === true,
+            author: {
+                name: authorName,
+                initials: authorInitials
+            }
         });
         
-        console.log('✅ Archive créée:', archive._id);
+        console.log('Archive créée:', archive._id);
         
         // Nettoyer les fichiers temporaires
         try {
@@ -129,12 +153,12 @@ export const createArchive = async (req, res) => {
                 fs.unlinkSync(req.files.pdf[0].path);
             }
         } catch (cleanupError) {
-            console.warn('⚠️ Erreur nettoyage fichiers temporaires:', cleanupError.message);
+            console.warn('Erreur nettoyage fichiers temporaires:', cleanupError.message);
         }
         
         res.status(201).json(archive);
     } catch (error) {
-        console.error('❌ ERREUR createArchive:');
+        console.error('ERREUR createArchive:');
         console.error('Message:', error.message);
         console.error('Stack:', error.stack);
         res.status(500).json({ 
@@ -163,7 +187,7 @@ export const updateArchive = async (req, res) => {
                 { _id: { $ne: req.params.id } },
                 { $set: { featured: false } }
             );
-            console.log('✅ Autres archives décochées');
+            console.log('Autres archives décochées');
         }
         
         // Mettre à jour les champs texte
@@ -205,7 +229,7 @@ export const updateArchive = async (req, res) => {
             try {
                 fs.unlinkSync(req.files.coverImage[0].path);
             } catch (e) {
-                console.warn('⚠️ Erreur nettoyage image:', e.message);
+                console.warn('Erreur nettoyage image:', e.message);
             }
         }
         
@@ -231,7 +255,7 @@ export const updateArchive = async (req, res) => {
             try {
                 fs.unlinkSync(req.files.pdf[0].path);
             } catch (e) {
-                console.warn('⚠️ Erreur nettoyage PDF:', e.message);
+                console.warn('Erreur nettoyage PDF:', e.message);
             }
         }
         
@@ -239,7 +263,7 @@ export const updateArchive = async (req, res) => {
         
         res.json(archive);
     } catch (error) {
-        console.error('❌ Erreur updateArchive:', error.message);
+        console.error('Erreur updateArchive:', error.message);
         console.error('Stack:', error.stack);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
@@ -274,7 +298,7 @@ export const deleteArchive = async (req, res) => {
         
         res.json({ message: 'Archive supprimée avec succès' });
     } catch (error) {
-        console.error('❌ Erreur deleteArchive:', error.message);
+        console.error('Erreur deleteArchive:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };

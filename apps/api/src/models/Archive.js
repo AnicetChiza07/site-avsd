@@ -38,6 +38,17 @@ const archiveSchema = new mongoose.Schema({
     featured: {
         type: Boolean,
         default: false
+    },
+    // NOUVEAU : Informations sur l'auteur
+    author: {
+        name: {
+            type: String,
+            default: 'AVSD RDC'
+        },
+        initials: {
+            type: String,
+            default: 'AVSD'
+        }
     }
 }, {
     timestamps: true
