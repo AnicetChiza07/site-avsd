@@ -291,6 +291,7 @@ const Archives = () => {
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th className="text-left px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Archive</th>
+                                    <th className="text-left px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Auteur</th>
                                     <th className="text-left px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Date & Heure</th>
                                     <th className="text-right px-4 py-2.5 text-[13px] font-bold text-gray-500 uppercase tracking-wider">Actions</th>
                                 </tr>
@@ -325,7 +326,21 @@ const Archives = () => {
                                             </div>
                                         </td>
                                         
-                                        {/* COLONNE 2 : Date et Heure */}
+                                        {/* COLONNE 2 : Auteur */}
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-8 h-8 bg-brand-blue rounded-full flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-white text-xs font-bold">
+                                                        {archive.author?.initials || 'AVSD'}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[13px] text-gray-700 font-medium">
+                                                    {archive.author?.name || 'AVSD RDC'}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        
+                                        {/* COLONNE 3 : Date et Heure */}
                                         <td className="px-4 py-2">
                                             <div className="flex items-center gap-1.5 text-[12px] text-gray-500 whitespace-nowrap">
                                                 <Calendar className="w-4 h-4 flex-shrink-0 text-gray-400" />
@@ -335,7 +350,7 @@ const Archives = () => {
                                             </div>
                                         </td>
                                         
-                                        {/* COLONNE 3 : Actions (Modifier + Supprimer uniquement) */}
+                                        {/* COLONNE 4 : Actions */}
                                         <td className="px-4 py-2">
                                             <div className="flex items-center justify-end gap-1">
                                                 <button 
