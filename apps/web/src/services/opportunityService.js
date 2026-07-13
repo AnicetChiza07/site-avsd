@@ -10,13 +10,19 @@ const getOpportunityById = async (id) => {
     return response.data;
 };
 
-const createOpportunity = async (data) => {
-    const response = await api.post('/opportunities', data, {
-        headers: {
-            'Content-Type': 'multipart/form-data'
-        }
-    });
-    return response.data;
+const createOpportunity = async (formData) => {
+    try {
+        const response = await api.post('/opportunities', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    } catch (error) {
+        // 👉 CETTE LIGNE VA NOUS DIRE EXACTEMENT POURQUOI ÇA ÉCHOUE
+        console.error("🚨 DÉTAIL DE L'ERREUR 400 :", error.response?.data);
+        throw error;
+    }
 };
 
 const updateOpportunity = async (id, data) => {
