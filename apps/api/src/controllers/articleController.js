@@ -1,5 +1,5 @@
 // ===========================================
-// CONTRÔLEUR DES ARTICLES (AVEC CLOUDINARY)
+// CONTRÔLEUR DES ARTICLES (AVEC CLOUDINARY & AUTEUR)
 // ===========================================
 
 import Article from '../models/Article.js';
@@ -11,17 +11,26 @@ import cloudinary from '../config/cloudinary.js';
 const extractPublicId = (url) => {
     if (!url || !url.includes('cloudinary.com')) return null;
     
-    // Extraire le public_id de l'URL
-    // Exemple: https://res.cloudinary.com/demo/image/upload/v1234567890/avsd-rdc/articles/covers/cover-123.jpg
-    // Public ID: avsd-rdc/articles/covers/cover-123
     const parts = url.split('/');
     const uploadIndex = parts.indexOf('upload');
     if (uploadIndex === -1) return null;
     
     const publicIdWithExtension = parts.slice(uploadIndex + 1).join('/');
-    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, ''); // Retirer l'extension
+    const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
     
     return publicId;
+};
+
+// ===========================================
+// Fonction utilitaire : Générer les initiales à partir d'un nom
+// ===========================================
+const generateInitials = (name) => {
+    if (!name) return 'AVSD';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) {
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
 };
 
 // ===========================================
@@ -37,12 +46,10 @@ const getArticles = async (req, res) => {
 
         const filter = {};
 
-        // Filtre par catégorie
         if (req.query.category) {
             filter.category = req.query.category;
         }
 
-        // Filtre par année
         if (req.query.year) {
             const year = parseInt(req.query.year);
             const startDate = new Date(year, 0, 1);
@@ -50,7 +57,6 @@ const getArticles = async (req, res) => {
             filter.publishedAt = { $gte: startDate, $lt: endDate };
         }
 
-        // Filtre par featured
         if (req.query.featured === 'true') {
             filter.featured = true;
         }
@@ -77,10 +83,7 @@ const getArticles = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur getArticles:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur'
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 
@@ -93,27 +96,17 @@ const getArticleBySlug = async (req, res) => {
     try {
         const { slug } = req.params;
 
-        const article = await Article.findOne({ slug })
-            .populate('category', 'name slug');
+        const article = await Article.findOne({ slug }).populate('category', 'name slug');
 
         if (!article) {
-            return res.status(404).json({
-                success: false,
-                message: 'Article non trouvé'
-            });
+            return res.status(404).json({ success: false, message: 'Article non trouvé' });
         }
 
-        res.status(200).json({
-            success: true,
-            data: article
-        });
+        res.status(200).json({ success: true, data: article });
 
     } catch (error) {
         console.error('Erreur getArticleBySlug:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur'
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 
@@ -126,27 +119,17 @@ const getArticleById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const article = await Article.findById(id)
-            .populate('category', 'name slug');
+        const article = await Article.findById(id).populate('category', 'name slug');
 
         if (!article) {
-            return res.status(404).json({
-                success: false,
-                message: 'Article non trouvé'
-            });
+            return res.status(404).json({ success: false, message: 'Article non trouvé' });
         }
 
-        res.status(200).json({
-            success: true,
-            data: article
-        });
+        res.status(200).json({ success: true, data: article });
 
     } catch (error) {
         console.error('Erreur getArticleById:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur'
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 
@@ -157,48 +140,30 @@ const getArticleById = async (req, res) => {
 // ===========================================
 const createArticle = async (req, res) => {
     try {
-        // Vérifier qu'une image a été uploadée
         if (!req.file) {
-            return res.status(400).json({
-                success: false,
-                message: 'L\'image de couverture est obligatoire'
-            });
+            return res.status(400).json({ success: false, message: 'L\'image de couverture est obligatoire' });
         }
 
-        const {
-            title, slug, excerpt, content, category,
-            readTime, featured, publishedAt
-        } = req.body;
+        const { title, slug, excerpt, content, category, readTime, featured, publishedAt } = req.body;
 
-        // Avec Cloudinary, req.file.path contient l'URL complète
         const image = req.file.path;
 
-        // Validation des champs obligatoires
         if (!title || !slug || !content || !category) {
-            // Supprimer l'image de Cloudinary en cas d'erreur
-            if (req.file.filename) {
-                await cloudinary.uploader.destroy(req.file.filename);
-            }
-            return res.status(400).json({
-                success: false,
-                message: 'Veuillez remplir tous les champs obligatoires (titre, slug, contenu, catégorie)'
-            });
+            if (req.file.filename) await cloudinary.uploader.destroy(req.file.filename);
+            return res.status(400).json({ success: false, message: 'Veuillez remplir tous les champs obligatoires' });
         }
 
-        // Vérifier que le slug est unique
         const existingArticle = await Article.findOne({ slug });
         if (existingArticle) {
-            // Supprimer l'image de Cloudinary en cas d'erreur
-            if (req.file.filename) {
-                await cloudinary.uploader.destroy(req.file.filename);
-            }
-            return res.status(400).json({
-                success: false,
-                message: 'Un article avec ce slug existe déjà'
-            });
+            if (req.file.filename) await cloudinary.uploader.destroy(req.file.filename);
+            return res.status(400).json({ success: false, message: 'Un article avec ce slug existe déjà' });
         }
 
-        // Conversion des types (FormData envoie tout en string)
+        // NOUVEAU : Récupérer les infos de l'auteur depuis l'admin connecté
+        const authorName = req.admin ? req.admin.name : 'AVSD RDC';
+        const authorInitials = generateInitials(authorName);
+        console.log('👤 Auteur article détecté:', authorName, '| Initiales:', authorInitials);
+
         const articleData = {
             title: title.trim(),
             slug: slug.trim().toLowerCase(),
@@ -208,17 +173,19 @@ const createArticle = async (req, res) => {
             category,
             readTime: readTime || '5 min',
             featured: featured === 'true' || featured === true,
-            publishedAt: publishedAt ? new Date(publishedAt) : new Date()
+            publishedAt: publishedAt ? new Date(publishedAt) : new Date(),
+            author: {
+                name: authorName,
+                initials: authorInitials
+            }
         };
 
-        // Si cet article est "à la une", désactiver les autres
         if (articleData.featured) {
             await Article.updateMany({ featured: true }, { featured: false });
         }
 
         const article = await Article.create(articleData);
-        const populatedArticle = await Article.findById(article._id)
-            .populate('category', 'name slug');
+        const populatedArticle = await Article.findById(article._id).populate('category', 'name slug');
 
         res.status(201).json({
             success: true,
@@ -229,27 +196,16 @@ const createArticle = async (req, res) => {
     } catch (error) {
         console.error('Erreur createArticle:', error);
 
-        // Supprimer l'image de Cloudinary en cas d'erreur
         if (req.file && req.file.filename) {
-            try {
-                await cloudinary.uploader.destroy(req.file.filename);
-            } catch (cloudinaryError) {
-                console.error('Erreur suppression Cloudinary:', cloudinaryError);
-            }
+            try { await cloudinary.uploader.destroy(req.file.filename); } catch (e) {}
         }
 
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(err => err.message);
-            return res.status(400).json({
-                success: false,
-                message: messages.join(', ')
-            });
+            return res.status(400).json({ success: false, message: messages.join(', ') });
         }
 
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur lors de la création : ' + error.message
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur : ' + error.message });
     }
 };
 
@@ -264,51 +220,38 @@ const updateArticle = async (req, res) => {
 
         const article = await Article.findById(id);
         if (!article) {
-            // Supprimer l'image de Cloudinary si uploadée
-            if (req.file && req.file.filename) {
-                await cloudinary.uploader.destroy(req.file.filename);
-            }
-            return res.status(404).json({
-                success: false,
-                message: 'Article non trouvé'
-            });
+            if (req.file && req.file.filename) await cloudinary.uploader.destroy(req.file.filename);
+            return res.status(404).json({ success: false, message: 'Article non trouvé' });
         }
 
         const updates = { ...req.body };
 
-        // Si une nouvelle image a été uploadée
+        // NOUVEAU : Mettre à jour l'auteur avec l'admin qui modifie
+        if (req.admin) {
+            updates.author = {
+                name: req.admin.name,
+                initials: generateInitials(req.admin.name)
+            };
+        }
+
         if (req.file) {
-            // Supprimer l'ancienne image de Cloudinary
             if (article.image) {
                 const oldPublicId = extractPublicId(article.image);
                 if (oldPublicId) {
-                    try {
-                        await cloudinary.uploader.destroy(oldPublicId);
-                    } catch (cloudinaryError) {
-                        console.error('Erreur suppression ancienne image Cloudinary:', cloudinaryError);
-                    }
+                    try { await cloudinary.uploader.destroy(oldPublicId); } catch (e) {}
                 }
             }
-            // Utiliser la nouvelle URL Cloudinary
             updates.image = req.file.path;
         }
 
-        // Si le slug a changé, vérifier qu'il est unique
         if (updates.slug && updates.slug !== article.slug) {
             const existingArticle = await Article.findOne({ slug: updates.slug });
             if (existingArticle) {
-                // Supprimer l'image de Cloudinary si uploadée
-                if (req.file && req.file.filename) {
-                    await cloudinary.uploader.destroy(req.file.filename);
-                }
-                return res.status(400).json({
-                    success: false,
-                    message: 'Un article avec ce slug existe déjà'
-                });
+                if (req.file && req.file.filename) await cloudinary.uploader.destroy(req.file.filename);
+                return res.status(400).json({ success: false, message: 'Un article avec ce slug existe déjà' });
             }
         }
 
-        // Conversion des types
         if (updates.featured !== undefined) {
             updates.featured = updates.featured === 'true' || updates.featured === true;
         }
@@ -316,7 +259,6 @@ const updateArticle = async (req, res) => {
             updates.publishedAt = new Date(updates.publishedAt);
         }
 
-        // Si cet article devient "à la une", désactiver les autres
         if (updates.featured) {
             await Article.updateMany(
                 { featured: true, _id: { $ne: id } },
@@ -339,27 +281,16 @@ const updateArticle = async (req, res) => {
     } catch (error) {
         console.error('Erreur updateArticle:', error);
 
-        // Supprimer l'image de Cloudinary en cas d'erreur
         if (req.file && req.file.filename) {
-            try {
-                await cloudinary.uploader.destroy(req.file.filename);
-            } catch (cloudinaryError) {
-                console.error('Erreur suppression Cloudinary:', cloudinaryError);
-            }
+            try { await cloudinary.uploader.destroy(req.file.filename); } catch (e) {}
         }
 
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(err => err.message);
-            return res.status(400).json({
-                success: false,
-                message: messages.join(', ')
-            });
+            return res.status(400).json({ success: false, message: messages.join(', ') });
         }
 
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur lors de la mise à jour : ' + error.message
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur : ' + error.message });
     }
 };
 
@@ -375,37 +306,23 @@ const deleteArticle = async (req, res) => {
         const article = await Article.findById(id);
 
         if (!article) {
-            return res.status(404).json({
-                success: false,
-                message: 'Article non trouvé'
-            });
+            return res.status(404).json({ success: false, message: 'Article non trouvé' });
         }
 
-        // Supprimer l'image de Cloudinary
         if (article.image) {
             const publicId = extractPublicId(article.image);
             if (publicId) {
-                try {
-                    await cloudinary.uploader.destroy(publicId);
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(publicId); } catch (e) {}
             }
         }
 
         await Article.findByIdAndDelete(id);
 
-        res.status(200).json({
-            success: true,
-            message: 'Article supprimé avec succès'
-        });
+        res.status(200).json({ success: true, message: 'Article supprimé avec succès' });
 
     } catch (error) {
         console.error('Erreur deleteArticle:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur lors de la suppression'
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 

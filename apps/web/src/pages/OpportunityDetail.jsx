@@ -179,6 +179,20 @@ const OpportunityDetail = () => {
                                 <Calendar className="w-5 h-5" />
                                 <span>Clôture : {formatDate(opportunity.endDate)}</span>
                             </div>
+                            
+                            {/* NOUVEAU : Badge Auteur */}
+                            {opportunity.author && (
+                                <div className="flex items-center gap-2 pl-1.5 pr-2.5 py-1.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/10">
+                                    <div className="w-6 h-6 bg-brand-blue rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span className="text-white text-[10px] font-bold">
+                                            {opportunity.author.initials || 'AV'}
+                                        </span>
+                                    </div>
+                                    <span className="font-medium text-white/90">
+                                        {opportunity.author.name || 'AV'}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -45,6 +45,17 @@ const articleSchema = new mongoose.Schema({
     publishedAt: {
         type: Date,
         default: Date.now
+    },
+    // NOUVEAU : Informations sur l'auteur
+    author: {
+        name: {
+            type: String,
+            default: 'AVSD RDC'
+        },
+        initials: {
+            type: String,
+            default: 'AVSD'
+        }
     }
 }, {
     timestamps: true
