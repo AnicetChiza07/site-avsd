@@ -1,5 +1,5 @@
 // ===========================================
-// CONTRÔLEUR DES OPPORTUNITÉS (AVEC CLOUDINARY)
+// CONTRÔLEUR DES OPPORTUNITÉS (AVEC CLOUDINARY & AUTEUR)
 // ===========================================
 
 import Opportunity from '../models/Opportunity.js';
@@ -19,6 +19,18 @@ const extractPublicId = (url) => {
     const publicId = publicIdWithExtension.replace(/\.[^/.]+$/, '');
     
     return publicId;
+};
+
+// ===========================================
+// Fonction utilitaire : Générer les initiales à partir d'un nom
+// ===========================================
+const generateInitials = (name) => {
+    if (!name) return 'AVSD';
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) {
+        return parts[0].substring(0, 2).toUpperCase();
+    }
+    return (parts[0][0] + parts[1][0]).toUpperCase();
 };
 
 // ===========================================
@@ -66,16 +78,13 @@ const getOpportunityById = async (req, res) => {
 // ===========================================
 const createOpportunity = async (req, res) => {
     try {
-        // 1. Vérifier l'image (req.files.image car on utilise multer().fields())
         if (!req.files || !req.files.image) {
             return res.status(400).json({ success: false, message: 'L\'image de couverture est obligatoire' });
         }
 
         const { type, title, position, description, startDate, endDate, location, contractType } = req.body;
 
-        // 2. Validation
         if (!title || !description || !startDate || !endDate) {
-            // Supprimer les fichiers de Cloudinary en cas d'erreur
             if (req.files.image && req.files.image[0].filename) {
                 await cloudinary.uploader.destroy(req.files.image[0].filename);
             }
@@ -85,7 +94,11 @@ const createOpportunity = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Veuillez remplir tous les champs obligatoires' });
         }
 
-        // 3. Construction des données
+        // NOUVEAU : Récupérer les infos de l'auteur depuis l'admin connecté
+        const authorName = req.admin ? req.admin.name : 'AVSD RDC';
+        const authorInitials = generateInitials(authorName);
+        console.log('👤 Auteur opportunité détecté:', authorName, '| Initiales:', authorInitials);
+
         const opportunityData = {
             type: type || 'emploi',
             title: title.trim(),
@@ -95,12 +108,15 @@ const createOpportunity = async (req, res) => {
             endDate: new Date(endDate),
             location: location ? location.trim() : '',
             contractType: contractType || 'CDI',
-            image: req.files.image[0].path // URL Cloudinary complète
+            image: req.files.image[0].path,
+            author: {
+                name: authorName,
+                initials: authorInitials
+            }
         };
 
-        // Ajouter le PDF si présent
         if (req.files.pdf) {
-            opportunityData.fileUrl = req.files.pdf[0].path; // URL Cloudinary complète
+            opportunityData.fileUrl = req.files.pdf[0].path;
         }
 
         const opportunity = await Opportunity.create(opportunityData);
@@ -114,21 +130,12 @@ const createOpportunity = async (req, res) => {
     } catch (error) {
         console.error('Erreur createOpportunity:', error);
         
-        // Nettoyer les fichiers de Cloudinary en cas d'erreur
         if (req.files) {
             if (req.files.image && req.files.image[0].filename) {
-                try {
-                    await cloudinary.uploader.destroy(req.files.image[0].filename);
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(req.files.image[0].filename); } catch (e) {}
             }
             if (req.files.pdf && req.files.pdf[0].filename) {
-                try {
-                    await cloudinary.uploader.destroy(req.files.pdf[0].filename, { resource_type: 'raw' });
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression PDF Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(req.files.pdf[0].filename, { resource_type: 'raw' }); } catch (e) {}
             }
         }
         
@@ -149,55 +156,43 @@ const updateOpportunity = async (req, res) => {
     try {
         const opportunity = await Opportunity.findById(req.params.id);
         if (!opportunity) {
-            // Nettoyer les fichiers uploadés de Cloudinary
             if (req.files) {
-                if (req.files.image && req.files.image[0].filename) {
-                    await cloudinary.uploader.destroy(req.files.image[0].filename);
-                }
-                if (req.files.pdf && req.files.pdf[0].filename) {
-                    await cloudinary.uploader.destroy(req.files.pdf[0].filename, { resource_type: 'raw' });
-                }
+                if (req.files.image && req.files.image[0].filename) await cloudinary.uploader.destroy(req.files.image[0].filename);
+                if (req.files.pdf && req.files.pdf[0].filename) await cloudinary.uploader.destroy(req.files.pdf[0].filename, { resource_type: 'raw' });
             }
             return res.status(404).json({ success: false, message: 'Opportunité non trouvée' });
         }
 
         const updates = { ...req.body };
         
-        // Conversion des dates
         if (updates.startDate) updates.startDate = new Date(updates.startDate);
         if (updates.endDate) updates.endDate = new Date(updates.endDate);
 
-        // Gestion de la nouvelle image
+        // NOUVEAU : Mettre à jour l'auteur avec l'admin qui modifie
+        if (req.admin) {
+            updates.author = {
+                name: req.admin.name,
+                initials: generateInitials(req.admin.name)
+            };
+        }
+
         if (req.files && req.files.image) {
-            // Supprimer l'ancienne image de Cloudinary
             if (opportunity.image) {
                 const oldPublicId = extractPublicId(opportunity.image);
                 if (oldPublicId) {
-                    try {
-                        await cloudinary.uploader.destroy(oldPublicId);
-                    } catch (cloudinaryError) {
-                        console.error('Erreur suppression ancienne image Cloudinary:', cloudinaryError);
-                    }
+                    try { await cloudinary.uploader.destroy(oldPublicId); } catch (e) {}
                 }
             }
-            // Utiliser la nouvelle URL Cloudinary
             updates.image = req.files.image[0].path;
         }
 
-        // Gestion du nouveau PDF
         if (req.files && req.files.pdf) {
-            // Supprimer l'ancien PDF de Cloudinary
             if (opportunity.fileUrl) {
                 const oldPublicId = extractPublicId(opportunity.fileUrl);
                 if (oldPublicId) {
-                    try {
-                        await cloudinary.uploader.destroy(oldPublicId, { resource_type: 'raw' });
-                    } catch (cloudinaryError) {
-                        console.error('Erreur suppression ancien PDF Cloudinary:', cloudinaryError);
-                    }
+                    try { await cloudinary.uploader.destroy(oldPublicId, { resource_type: 'raw' }); } catch (e) {}
                 }
             }
-            // Utiliser la nouvelle URL Cloudinary
             updates.fileUrl = req.files.pdf[0].path;
         }
 
@@ -216,21 +211,12 @@ const updateOpportunity = async (req, res) => {
     } catch (error) {
         console.error('Erreur updateOpportunity:', error);
         
-        // Nettoyer les fichiers de Cloudinary en cas d'erreur
         if (req.files) {
             if (req.files.image && req.files.image[0].filename) {
-                try {
-                    await cloudinary.uploader.destroy(req.files.image[0].filename);
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(req.files.image[0].filename); } catch (e) {}
             }
             if (req.files.pdf && req.files.pdf[0].filename) {
-                try {
-                    await cloudinary.uploader.destroy(req.files.pdf[0].filename, { resource_type: 'raw' });
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression PDF Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(req.files.pdf[0].filename, { resource_type: 'raw' }); } catch (e) {}
             }
         }
         
@@ -248,27 +234,17 @@ const deleteOpportunity = async (req, res) => {
         const opportunity = await Opportunity.findById(req.params.id);
         if (!opportunity) return res.status(404).json({ success: false, message: 'Opportunité non trouvée' });
 
-        // Supprimer l'image de Cloudinary
         if (opportunity.image) {
             const publicId = extractPublicId(opportunity.image);
             if (publicId) {
-                try {
-                    await cloudinary.uploader.destroy(publicId);
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression image Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(publicId); } catch (e) {}
             }
         }
 
-        // Supprimer le PDF de Cloudinary
         if (opportunity.fileUrl) {
             const publicId = extractPublicId(opportunity.fileUrl);
             if (publicId) {
-                try {
-                    await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
-                } catch (cloudinaryError) {
-                    console.error('Erreur suppression PDF Cloudinary:', cloudinaryError);
-                }
+                try { await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' }); } catch (e) {}
             }
         }
 

@@ -109,7 +109,7 @@ const ArchivesSection = () => {
                                                     <span>{formatDate(archive.publishedAt || archive.createdAt)}</span>
                                                 </div>
                                                 {archive.featured && (
-                                                    <span className="px-3 py-1.5 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full shadow-lg">
+                                                    <span className="px-3 py-1.5 bg-yellow-500 text-black text-xs font-bold rounded-full shadow-lg">
                                                         À la une
                                                     </span>
                                                 )}

@@ -215,7 +215,7 @@ export const deleteArchive = async (req, res) => {
         await archive.deleteOne();
         res.json({ message: 'Archive supprimée avec succès' });
     } catch (error) {
-        console.error('❌ Erreur deleteArchive:', error.message);
+        console.error('Erreur deleteArchive:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };

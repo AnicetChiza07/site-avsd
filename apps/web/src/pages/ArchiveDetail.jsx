@@ -148,8 +148,8 @@ const ArchiveDetail = () => {
                                 Archive
                             </span>
                             {archive.featured && (
-                                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded-lg text-sm font-bold backdrop-blur-sm shadow-lg">
-                                    <Star className="w-4 h-4 fill-yellow-300" /> À la une
+                                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-500 text-black border border-yellow-500/30 rounded-lg text-sm font-bold backdrop-blur-sm shadow-lg">
+                                    <Star className="w-4 h-4 text-black" /> À la une
                                 </span>
                             )}
                         </div>

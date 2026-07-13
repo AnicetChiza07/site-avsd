@@ -41,6 +41,17 @@ const opportunitySchema = new mongoose.Schema({
     fileUrl: {
         type: String,
         default: ''
+    },
+    // NOUVEAU : Informations sur l'auteur
+    author: {
+        name: {
+            type: String,
+            default: 'AVSD RDC'
+        },
+        initials: {
+            type: String,
+            default: 'AVSD'
+        }
     }
 }, {
     timestamps: true
