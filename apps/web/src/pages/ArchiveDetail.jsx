@@ -118,7 +118,7 @@ const ArchiveDetail = () => {
                 url={`/archives/${archive.slug}`}
             />
 
-            {/* Hero Section - Style OpportunityDetail avec titre gradient */}
+            {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-end overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img 
@@ -154,22 +154,37 @@ const ArchiveDetail = () => {
                             )}
                         </div>
 
-                        {/* Titre en GRADIENT - Comme OpportunityDetail */}
+                        {/* Titre en GRADIENT */}
                         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight mb-6 drop-shadow-lg bg-gradient-to-r from-brand-blue to-brand-light bg-clip-text text-transparent">
                             {archive.title}
                         </h1>
 
-                        <div className="flex flex-wrap items-center gap-6 text-white/80 text-sm">
+                        {/* Date et Auteur */}
+                        <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
                             <div className="flex items-center gap-2">
                                 <Calendar className="w-5 h-5" />
                                 <span>Publié le {formatDate(archive.publishedAt || archive.createdAt)}</span>
                             </div>
+                            
+                            {/* NOUVEAU : Badge Auteur */}
+                            {archive.author && (
+                                <div className="flex items-center gap-2 pl-1.5 pr-3 py-1.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/10">
+                                    <div className="w-6 h-6 bg-brand-blue rounded-full flex items-center justify-center flex-shrink-0">
+                                        <span className="text-white text-[10px] font-bold">
+                                            {archive.author.initials || 'AVSD'}
+                                        </span>
+                                    </div>
+                                    <span className="font-medium text-white/90">
+                                        {archive.author.name || 'AVSD RDC'}
+                                    </span>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
             </section>
 
-            {/* Contenu principal - SANS le lien retour */}
+            {/* Contenu principal */}
             <section className="py-16 sm:py-24">
                 <div className="container">
                     <div className="max-w-4xl mx-auto">

@@ -80,8 +80,8 @@ export const createArchive = async (req, res) => {
             console.log('✅ Autres archives décochées');
         }
         
-        // ✅ CORRECTION ICI : On utilise uniquement req.user.name
-        const authorName = req.user ? req.user.name : 'AVSD RDC';
+        // ✅ CORRECTION ICI : On utilise req.admin (défini par le middleware d'auth)
+        const authorName = req.admin ? req.admin.name : 'AVSD RDC';
         const authorInitials = generateInitials(authorName);
         console.log('👤 Auteur détecté:', authorName, '| Initiales:', authorInitials);
         
