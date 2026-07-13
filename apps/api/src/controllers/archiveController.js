@@ -60,10 +60,8 @@ export const getArchiveBySlug = async (req, res) => {
 export const createArchive = async (req, res) => {
     try {
         console.log('📥 Début création archive');
-        console.log('📦 Body:', req.body);
-        console.log('📎 Files:', req.files);
         
-        const { title, excerpt, description } = req.body;
+        const { title, excerpt, description, featured } = req.body;
         
         // Vérifier que les fichiers sont uploadés
         if (!req.files || !req.files.coverImage || !req.files.pdf) {
@@ -73,8 +71,13 @@ export const createArchive = async (req, res) => {
             });
         }
         
+        // Si cette archive est "à la une", décocher toutes les autres
+        if (featured === 'true' || featured === true) {
+            await Archive.updateMany({}, { $set: { featured: false } });
+            console.log('✅ Autres archives décochées');
+        }
+        
         console.log('🖼️ Upload image...');
-        // Upload image de couverture sur Cloudinary
         const coverImageResult = await cloudinary.uploader.upload(
             req.files.coverImage[0].path,
             {
@@ -86,10 +89,8 @@ export const createArchive = async (req, res) => {
                 ]
             }
         );
-        console.log('✅ Image uploadée:', coverImageResult.secure_url);
         
         console.log('📄 Upload PDF...');
-        // Upload PDF sur Cloudinary
         const pdfResult = await cloudinary.uploader.upload(
             req.files.pdf[0].path,
             {
@@ -98,9 +99,7 @@ export const createArchive = async (req, res) => {
                 format: 'pdf'
             }
         );
-        console.log('✅ PDF uploadé:', pdfResult.secure_url);
         
-        // Générer le slug à partir du titre
         const slug = title
             .toLowerCase()
             .normalize('NFD')
@@ -109,14 +108,14 @@ export const createArchive = async (req, res) => {
             .replace(/^-|-$/g, '');
         
         console.log('💾 Sauvegarde en base...');
-        // Créer l'archive
         const archive = await Archive.create({
             title,
             slug,
             excerpt,
             description,
             coverImage: coverImageResult.secure_url,
-            fileUrl: pdfResult.secure_url
+            fileUrl: pdfResult.secure_url,
+            featured: featured === 'true' || featured === true
         });
         
         console.log('✅ Archive créée:', archive._id);
@@ -158,10 +157,18 @@ export const updateArchive = async (req, res) => {
         
         const { title, excerpt, description, featured } = req.body;
         
+        // Si cette archive devient "à la une", décocher toutes les autres
+        if (featured === 'true' || featured === true) {
+            await Archive.updateMany(
+                { _id: { $ne: req.params.id } },
+                { $set: { featured: false } }
+            );
+            console.log('✅ Autres archives décochées');
+        }
+        
         // Mettre à jour les champs texte
         if (title) {
             archive.title = title;
-            // Régénérer le slug si le titre change
             archive.slug = title
                 .toLowerCase()
                 .normalize('NFD')
@@ -171,11 +178,12 @@ export const updateArchive = async (req, res) => {
         }
         if (excerpt) archive.excerpt = excerpt;
         if (description) archive.description = description;
-        if (featured !== undefined) archive.featured = featured;
+        if (featured !== undefined) {
+            archive.featured = featured === 'true' || featured === true;
+        }
         
         // Upload nouvelle image si fournie
         if (req.files?.coverImage) {
-            // Supprimer l'ancienne image de Cloudinary
             if (archive.coverImage) {
                 const publicId = archive.coverImage.split('/').pop().split('.')[0];
                 await cloudinary.uploader.destroy(`avsd-rdc/archives/covers/${publicId}`);
@@ -194,7 +202,6 @@ export const updateArchive = async (req, res) => {
             );
             archive.coverImage = coverImageResult.secure_url;
             
-            // Nettoyer fichier temporaire
             try {
                 fs.unlinkSync(req.files.coverImage[0].path);
             } catch (e) {
@@ -204,7 +211,6 @@ export const updateArchive = async (req, res) => {
         
         // Upload nouveau PDF si fourni
         if (req.files?.pdf) {
-            // Supprimer l'ancien PDF de Cloudinary
             if (archive.fileUrl) {
                 const publicId = archive.fileUrl.split('/').pop().split('.')[0];
                 await cloudinary.uploader.destroy(`avsd-rdc/archives/pdfs/${publicId}`, {
@@ -222,7 +228,6 @@ export const updateArchive = async (req, res) => {
             );
             archive.fileUrl = pdfResult.secure_url;
             
-            // Nettoyer fichier temporaire
             try {
                 fs.unlinkSync(req.files.pdf[0].path);
             } catch (e) {
