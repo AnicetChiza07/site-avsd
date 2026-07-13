@@ -50,13 +50,20 @@ const articleContentStorage = new CloudinaryStorage({
     }
 });
 
-// Pour les opportunités (PDF)
+// Pour les opportunités (Image de couverture ET PDF) - MODIFIÉ
 const opportunityStorage = new CloudinaryStorage({
     cloudinary: cloudinary,
-    params: {
-        folder: 'avsd-rdc/opportunities',
-        allowed_formats: ['pdf'],
-        resource_type: 'raw'
+    params: async (req, file) => {
+        // Détecte si le fichier est un PDF
+        const isPdf = file.mimetype === 'application/pdf' || file.originalname.toLowerCase().endsWith('.pdf');
+        
+        return {
+            folder: 'avsd-rdc/opportunities',
+            // Si c'est un PDF, on autorise 'pdf', sinon on autorise les formats image
+            allowed_formats: isPdf ? ['pdf'] : ['jpg', 'jpeg', 'png', 'webp'],
+            // Si c'est un PDF, resource_type est 'raw', sinon c'est 'auto' (pour les images)
+            resource_type: isPdf ? 'raw' : 'auto'
+        };
     }
 });
 
@@ -148,7 +155,7 @@ const uploadArticleContent = multer({
 
 const uploadOpportunity = multer({
     storage: opportunityStorage,
-    fileFilter,
+    fileFilter, // Accepte maintenant à la fois les images et les PDF grâce au filtre global
     limits: { fileSize: 10 * 1024 * 1024 }
 });
 
