@@ -6,7 +6,7 @@ import fs from 'fs';
 const generateInitials = (name) => {
     if (!name) return 'AVSD';
     
-    // Séparer le nom en parties (nom + post-nom)
+    // Séparer le nom en parties (ex: "Anicet Chiza" -> ["Anicet", "Chiza"])
     const parts = name.trim().split(/\s+/);
     
     if (parts.length === 1) {
@@ -27,27 +27,20 @@ export const getArchives = async (req, res) => {
         
         let filter = {};
         
-        // Filtre par année
         if (year && year !== 'all') {
             const startDate = new Date(`${year}-01-01`);
             const endDate = new Date(`${year}-12-31`);
-            filter.publishedAt = {
-                $gte: startDate,
-                $lte: endDate
-            };
+            filter.publishedAt = { $gte: startDate, $lte: endDate };
         }
         
-        // Filtre par featured
         if (featured === 'true') {
             filter.featured = true;
         }
         
-        const archives = await Archive.find(filter)
-            .sort({ publishedAt: -1, createdAt: -1 });
-        
+        const archives = await Archive.find(filter).sort({ publishedAt: -1, createdAt: -1 });
         res.json(archives);
     } catch (error) {
-        console.error('Erreur getArchives:', error.message);
+        console.error('❌ Erreur getArchives:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
@@ -58,14 +51,12 @@ export const getArchives = async (req, res) => {
 export const getArchiveBySlug = async (req, res) => {
     try {
         const archive = await Archive.findOne({ slug: req.params.slug });
-        
         if (!archive) {
             return res.status(404).json({ message: 'Archive introuvable' });
         }
-        
         res.json(archive);
     } catch (error) {
-        console.error('Erreur getArchiveBySlug:', error.message);
+        console.error('❌ Erreur getArchiveBySlug:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
@@ -75,59 +66,43 @@ export const getArchiveBySlug = async (req, res) => {
 // @access  Admin
 export const createArchive = async (req, res) => {
     try {
-        console.log('Début création archive');
+        console.log('📥 Début création archive');
         
         const { title, excerpt, description, featured } = req.body;
         
-        // Vérifier que les fichiers sont uploadés
         if (!req.files || !req.files.coverImage || !req.files.pdf) {
-            console.error('Fichiers manquants:', req.files);
-            return res.status(400).json({ 
-                message: 'L\'image de couverture et le PDF sont obligatoires' 
-            });
+            console.error('❌ Fichiers manquants:', req.files);
+            return res.status(400).json({ message: 'L\'image de couverture et le PDF sont obligatoires' });
         }
         
-        // Si cette archive est "à la une", décocher toutes les autres
         if (featured === 'true' || featured === true) {
             await Archive.updateMany({}, { $set: { featured: false } });
-            console.log('Autres archives décochées');
+            console.log('✅ Autres archives décochées');
         }
         
-        // NOUVEAU : Récupérer les infos de l'auteur depuis l'utilisateur connecté
-        const authorName = req.user ? `${req.user.name || ''} ${req.user.postName || ''}`.trim() : 'AVSD RDC';
+        // ✅ CORRECTION ICI : On utilise uniquement req.user.name
+        const authorName = req.user ? req.user.name : 'AVSD RDC';
         const authorInitials = generateInitials(authorName);
+        console.log('👤 Auteur détecté:', authorName, '| Initiales:', authorInitials);
         
-        console.log('Upload image...');
+        console.log('🖼️ Upload image...');
         const coverImageResult = await cloudinary.uploader.upload(
             req.files.coverImage[0].path,
             {
                 folder: 'avsd-rdc/archives/covers',
-                transformation: [
-                    { width: 1200, height: 630, crop: 'limit' },
-                    { quality: 'auto' },
-                    { format: 'auto' }
-                ]
+                transformation: [{ width: 1200, height: 630, crop: 'limit' }, { quality: 'auto' }, { format: 'auto' }]
             }
         );
         
-        console.log('Upload PDF...');
+        console.log('📄 Upload PDF...');
         const pdfResult = await cloudinary.uploader.upload(
             req.files.pdf[0].path,
-            {
-                folder: 'avsd-rdc/archives/pdfs',
-                resource_type: 'raw',
-                format: 'pdf'
-            }
+            { folder: 'avsd-rdc/archives/pdfs', resource_type: 'raw', format: 'pdf' }
         );
         
-        const slug = title
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9]+/g, '-')
-            .replace(/^-|-$/g, '');
+        const slug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         
-        console.log('Sauvegarde en base...');
+        console.log('💾 Sauvegarde en base...');
         const archive = await Archive.create({
             title,
             slug,
@@ -142,29 +117,21 @@ export const createArchive = async (req, res) => {
             }
         });
         
-        console.log('Archive créée:', archive._id);
+        console.log('✅ Archive créée:', archive._id);
         
-        // Nettoyer les fichiers temporaires
         try {
-            if (req.files.coverImage[0].path) {
-                fs.unlinkSync(req.files.coverImage[0].path);
-            }
-            if (req.files.pdf[0].path) {
-                fs.unlinkSync(req.files.pdf[0].path);
-            }
+            if (req.files.coverImage[0].path) fs.unlinkSync(req.files.coverImage[0].path);
+            if (req.files.pdf[0].path) fs.unlinkSync(req.files.pdf[0].path);
         } catch (cleanupError) {
-            console.warn('Erreur nettoyage fichiers temporaires:', cleanupError.message);
+            console.warn('⚠️ Erreur nettoyage fichiers temporaires:', cleanupError.message);
         }
         
         res.status(201).json(archive);
     } catch (error) {
-        console.error('ERREUR createArchive:');
+        console.error('❌ ERREUR createArchive:');
         console.error('Message:', error.message);
         console.error('Stack:', error.stack);
-        res.status(500).json({ 
-            message: 'Erreur serveur',
-            error: error.message 
-        });
+        res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
 
@@ -174,97 +141,54 @@ export const createArchive = async (req, res) => {
 export const updateArchive = async (req, res) => {
     try {
         const archive = await Archive.findById(req.params.id);
-        
         if (!archive) {
             return res.status(404).json({ message: 'Archive introuvable' });
         }
         
         const { title, excerpt, description, featured } = req.body;
         
-        // Si cette archive devient "à la une", décocher toutes les autres
         if (featured === 'true' || featured === true) {
-            await Archive.updateMany(
-                { _id: { $ne: req.params.id } },
-                { $set: { featured: false } }
-            );
-            console.log('Autres archives décochées');
+            await Archive.updateMany({ _id: { $ne: req.params.id } }, { $set: { featured: false } });
+            console.log('✅ Autres archives décochées');
         }
         
-        // Mettre à jour les champs texte
         if (title) {
             archive.title = title;
-            archive.slug = title
-                .toLowerCase()
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/[^a-z0-9]+/g, '-')
-                .replace(/^-|-$/g, '');
+            archive.slug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         }
         if (excerpt) archive.excerpt = excerpt;
         if (description) archive.description = description;
-        if (featured !== undefined) {
-            archive.featured = featured === 'true' || featured === true;
-        }
+        if (featured !== undefined) archive.featured = featured === 'true' || featured === true;
         
-        // Upload nouvelle image si fournie
         if (req.files?.coverImage) {
             if (archive.coverImage) {
                 const publicId = archive.coverImage.split('/').pop().split('.')[0];
                 await cloudinary.uploader.destroy(`avsd-rdc/archives/covers/${publicId}`);
             }
-            
-            const coverImageResult = await cloudinary.uploader.upload(
-                req.files.coverImage[0].path,
-                {
-                    folder: 'avsd-rdc/archives/covers',
-                    transformation: [
-                        { width: 1200, height: 630, crop: 'limit' },
-                        { quality: 'auto' },
-                        { format: 'auto' }
-                    ]
-                }
-            );
+            const coverImageResult = await cloudinary.uploader.upload(req.files.coverImage[0].path, {
+                folder: 'avsd-rdc/archives/covers',
+                transformation: [{ width: 1200, height: 630, crop: 'limit' }, { quality: 'auto' }, { format: 'auto' }]
+            });
             archive.coverImage = coverImageResult.secure_url;
-            
-            try {
-                fs.unlinkSync(req.files.coverImage[0].path);
-            } catch (e) {
-                console.warn('Erreur nettoyage image:', e.message);
-            }
+            try { fs.unlinkSync(req.files.coverImage[0].path); } catch (e) { console.warn('⚠️ Erreur nettoyage image:', e.message); }
         }
         
-        // Upload nouveau PDF si fourni
         if (req.files?.pdf) {
             if (archive.fileUrl) {
                 const publicId = archive.fileUrl.split('/').pop().split('.')[0];
-                await cloudinary.uploader.destroy(`avsd-rdc/archives/pdfs/${publicId}`, {
-                    resource_type: 'raw'
-                });
+                await cloudinary.uploader.destroy(`avsd-rdc/archives/pdfs/${publicId}`, { resource_type: 'raw' });
             }
-            
-            const pdfResult = await cloudinary.uploader.upload(
-                req.files.pdf[0].path,
-                {
-                    folder: 'avsd-rdc/archives/pdfs',
-                    resource_type: 'raw',
-                    format: 'pdf'
-                }
-            );
+            const pdfResult = await cloudinary.uploader.upload(req.files.pdf[0].path, {
+                folder: 'avsd-rdc/archives/pdfs', resource_type: 'raw', format: 'pdf'
+            });
             archive.fileUrl = pdfResult.secure_url;
-            
-            try {
-                fs.unlinkSync(req.files.pdf[0].path);
-            } catch (e) {
-                console.warn('Erreur nettoyage PDF:', e.message);
-            }
+            try { fs.unlinkSync(req.files.pdf[0].path); } catch (e) { console.warn('⚠️ Erreur nettoyage PDF:', e.message); }
         }
         
         await archive.save();
-        
         res.json(archive);
     } catch (error) {
-        console.error('Erreur updateArchive:', error.message);
-        console.error('Stack:', error.stack);
+        console.error('❌ Erreur updateArchive:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
@@ -275,30 +199,23 @@ export const updateArchive = async (req, res) => {
 export const deleteArchive = async (req, res) => {
     try {
         const archive = await Archive.findById(req.params.id);
-        
         if (!archive) {
             return res.status(404).json({ message: 'Archive introuvable' });
         }
         
-        // Supprimer l'image de Cloudinary
         if (archive.coverImage) {
             const publicId = archive.coverImage.split('/').pop().split('.')[0];
             await cloudinary.uploader.destroy(`avsd-rdc/archives/covers/${publicId}`);
         }
-        
-        // Supprimer le PDF de Cloudinary
         if (archive.fileUrl) {
             const publicId = archive.fileUrl.split('/').pop().split('.')[0];
-            await cloudinary.uploader.destroy(`avsd-rdc/archives/pdfs/${publicId}`, {
-                resource_type: 'raw'
-            });
+            await cloudinary.uploader.destroy(`avsd-rdc/archives/pdfs/${publicId}`, { resource_type: 'raw' });
         }
         
         await archive.deleteOne();
-        
         res.json({ message: 'Archive supprimée avec succès' });
     } catch (error) {
-        console.error('Erreur deleteArchive:', error.message);
+        console.error('❌ Erreur deleteArchive:', error.message);
         res.status(500).json({ message: 'Erreur serveur', error: error.message });
     }
 };
