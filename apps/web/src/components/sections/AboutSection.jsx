@@ -1,6 +1,6 @@
 import SectionTitle from '../ui/SectionTitle';
-import heroImg from '../../assets/images/Hero/hero.jpg';
-import heroBgImg from '../../assets/images/Hero/herobg.jpg';
+import Agriculture from '../../assets/images/Hero/Agriculture.jpg';
+import heroBgImg from '../../assets/images/Hero/wamama.jpg';
 
 const AboutSection = () => {
     return (
@@ -29,7 +29,7 @@ const AboutSection = () => {
                         {/* Image */}
                         <div className="relative group overflow-hidden rounded-xl shadow-lg">
                             <img 
-                                src={heroImg} 
+                                src={Agriculture} 
                                 alt="Action des Volontaires pour la Solidarité et le Développement" 
                                 loading="lazy"
                                 className="w-full h-[280px] md:h-full object-cover transition-transform duration-500 group-hover:scale-105"
@@ -54,7 +54,7 @@ const AboutSection = () => {
                     {/* Texte (en deuxième sur desktop, en premier sur mobile) */}
                     <div className="flex flex-col justify-center p-6 md:p-8 rounded-xl bg-gray-50/50 border border-gray-200/50 backdrop-blur-sm order-1 md:order-2">
                         <p className="text-base md:text-lg text-gray-700 leading-relaxed italic">
-                            <strong className="text-gray-900">Nous avons pour vocation</strong> Est de porter secours et assistance aux personnes et ménages en détresse et en situation de vulnérabilité tant en zones des conflits violents qu'en zones stables où les besoins se font sentir. Nous mettons un accent particulier à la promotion et à la protection de la femme, de la jeune fille et de l'enfant.
+                            <strong className="text-gray-900">Nous avons pour vocation</strong> de porter secours et assistance aux personnes et ménages en détresse et en situation de vulnérabilité tant en zones des conflits violents qu'en zones stables où les besoins se font sentir. Nous mettons un accent particulier à la promotion et à la protection de la femme, de la jeune fille et de l'enfant.
                         </p>
                     </div>
                 </div>

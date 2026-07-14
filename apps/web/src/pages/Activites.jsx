@@ -84,12 +84,12 @@ const Activites = () => {
                             description="Les activités de l'AVSD sont issues de son principal programme phare : le Programme Genre, Perspective Paix et Développement (GPPD)."
                         />
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12 pb-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-12 pb-16">
                         
                             {activities.map((activity) => (
                                 <div 
                                     key={activity.id}
-                                    className={`relative ${activity.color} border ${activity.borderColor} rounded-3xl p-8 min-h-[420px] flex flex-col shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group`}
+                                    className={`relative ${activity.color} border ${activity.borderColor} rounded-2xl p-8 min-h-[420px] flex flex-col shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group`}
                                 >
                                     {/* En-tête : Icône à gauche, Numéro à droite */}
                                     <div className="flex justify-between items-center mb-6">

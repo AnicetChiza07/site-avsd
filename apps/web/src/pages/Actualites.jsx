@@ -7,7 +7,7 @@ import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonCard from '../components/ui/SkeletonCard';
 import SkeletonImage from '../components/ui/SkeletonImage';
 import SkeletonText from '../components/ui/SkeletonText';
-import bgImage from '../assets/images/Hero/herobg.jpg';
+import bgImage from '../assets/images/Hero/wamama.jpg';
 import articleService from '../services/articleService';
 import { getBaseUrl } from '../services/api';
 
@@ -173,7 +173,7 @@ const Actualites = () => {
                                                 {article.category && (<div className="absolute top-4 left-4 px-3 py-1.5 bg-white/95 backdrop-blur-sm rounded-full text-xs font-semibold text-brand-blue shadow-sm">{article.category.name}</div>)}
                                                 <div className="absolute top-4 right-4 flex flex-col items-center justify-center w-16 h-16 bg-white/95 backdrop-blur-sm rounded-xl shadow-sm">
                                                     <span className="text-2xl font-bold text-brand-blue leading-none">{dateParts.day}</span>
-                                                    <span className="text-xs text-gray-600 uppercase mt-1">{dateParts.month}</span>
+                                                    <span className="text-xs text-gray-600 mt-1">{dateParts.month}</span>
                                                 </div>
                                                 
                                                 <div className="absolute bottom-4 right-4 w-12 h-12 bg-brand-blue rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 shadow-lg">

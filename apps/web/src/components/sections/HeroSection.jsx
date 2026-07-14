@@ -2,7 +2,7 @@ import Button from '../ui/Button';
 import { Users, UserCheck, Heart, HandHelping } from 'lucide-react';
 
 // Import des images via Vite (les chemins sont relatifs à ce fichier)
-import bgImg from '../../assets/images/Hero/bg.jpg'; 
+import imgBg from '../../assets/images/Hero/bg.jpg'; 
 
 const HeroSection = () => {
     return (
@@ -11,13 +11,13 @@ const HeroSection = () => {
             {/* 1. Background avec animation de zoom */}
             <div className="absolute inset-0 z-0">
                 <img 
-                    src={bgImg} 
+                    src={imgBg} 
                     alt="" 
                     loading="lazy"
                     className="w-full h-full object-cover animate-zoom-bg" 
                 />
                 {/* Overlay dégradé sombre pour la lisibilité du texte */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#030d12db] to-[#030d12bc]" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
             </div>
 
             {/* 2. Contenu principal */}

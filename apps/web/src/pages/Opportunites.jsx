@@ -5,7 +5,7 @@ import SEO from '../components/SEO';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonCard from '../components/ui/SkeletonCard';
-import bgImage from '../assets/images/Caroussel/thirdCarrous.jpg';
+import bgImage from '../assets/images/Caroussel/Despistage.jpg';
 import opportunityService from '../services/opportunityService';
 import { getBaseUrl } from '../services/api';
 
@@ -171,7 +171,7 @@ const Opportunites = () => {
                                         <Link
                                             key={opportunity._id}
                                             to={`/opportunites/${opportunity._id}`}
-                                            className={`group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 block ${
+                                            className={`group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 block ${
                                                 !active ? 'opacity-75' : ''
                                             }`}
                                             style={{

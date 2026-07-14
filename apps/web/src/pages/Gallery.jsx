@@ -4,7 +4,7 @@ import SEO from '../components/SEO';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonGallery from '../components/ui/SkeletonGallery';
-import bgImage from '../assets/images/Caroussel/thirdCarrous.jpg';
+import bgImage from '../assets/images/Caroussel/Distribution.jpg';
 import galleryService from '../services/galleryService';
 import { getBaseUrl } from '../services/api';
 

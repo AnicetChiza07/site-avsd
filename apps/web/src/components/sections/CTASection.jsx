@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { NotebookPen, ArrowRight, TrendingUp } from 'lucide-react';
-import bgImg from '../../assets/images/Hero/bg.jpg';
+import bgImg from '../../assets/images/Hero/Eau.jpg';
 import articleService from '../../services/articleService';
 
 const CTASection = () => {
@@ -38,7 +38,7 @@ const CTASection = () => {
     };
 
     return (
-        <section data-theme="dark" className="relative py-24 sm:py-32 overflow-hidden">
+        <section className="relative py-24 sm:py-42 overflow-hidden">
             <div className="absolute inset-0 z-0">
                 <img src={bgImg} alt="" className="w-full h-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
