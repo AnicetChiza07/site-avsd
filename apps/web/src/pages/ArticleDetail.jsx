@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Calendar, Clock, Tag, ArrowUpRight, ChevronLeft, Quote } from 'lucide-react';
+import { Calendar, Clock, Tag, ArrowUpRight, ArrowLeft, Quote } from 'lucide-react';
 import SEO from '../components/SEO';
 import articleService from '../services/articleService';
 import SkeletonText from '../components/ui/SkeletonText';
@@ -104,7 +104,7 @@ const ArticleDetail = () => {
                     <h1 className="text-4xl font-heading text-gray-900 mb-4">Article introuvable</h1>
                     <p className="text-gray-600 mb-8">L'article que vous recherchez n'existe pas ou a été supprimé.</p>
                     <Link to="/actualites" className="inline-flex items-center gap-2 px-6 py-3 bg-brand-blue text-white rounded-xl hover:bg-brand-blue/90 transition-colors">
-                        <ChevronLeft className="w-5 h-5" /> Retour aux actualités
+                        <ArrowLeft className="w-5 h-5" /> Retour aux actualités
                     </Link>
                 </div>
             </section>
@@ -137,35 +137,71 @@ const ArticleDetail = () => {
                 />
             )}
 
-            {/* Hero Section */}
-            <section data-theme="dark" className="relative h-[60vh] flex items-center overflow-hidden">
+            {/* Hero Section - Style identique aux autres pages */}
+            <section data-theme="dark" className="relative h-[60vh] flex items-end overflow-hidden">
                 <div className="absolute inset-0 z-0">
-                    <img src={getImageUrl(article.image)} alt={article.title} loading="lazy" className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
+                    <img 
+                        src={getImageUrl(article.image)} 
+                        alt={article.title} 
+                        loading="lazy"
+                        className="w-full h-full object-cover" 
+                    />
+                    <div className="absolute inset-0 bg-[#030d12]/95" />
                 </div>
-                <div className="container relative z-10 flex flex-col justify-center h-full py-20">
+                <div className="container relative z-10 pb-16">
                     <div className="max-w-5xl">
-                        {article.category && (
-                            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg mb-6" style={{ animation: 'fadeInDown 0.6s ease-out both' }}>
-                                <Tag className="w-4 h-4 text-white" strokeWidth={2} />
-                                <span className="text-white font-medium text-sm uppercase tracking-wide">{article.category.name}</span>
-                            </div>
-                        )}
-                        <h1 
-                            className="text-3xl sm:text-4xl md:text-4xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-light mb-6"
-                            style={{ animation: 'fadeInUp 0.8s ease-out 0.2s both' }}
+                        
+                        <Link 
+                            to="/actualites" 
+                            className="inline-flex items-center gap-2 text-white/70 hover:text-white text-sm font-medium mb-6 transition-colors group"
                         >
+                            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                            <span>Voir les actualités</span>
+                        </Link>
+                        
+                        <div className="flex flex-wrap items-center gap-3 mb-6">
+                            {article.category && (
+                                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-blue backdrop-blur-sm border border-brand-blue/30 rounded-md text-sm text-white tracking-wide shadow-lg">
+                                    <Tag className="w-4 h-4" />
+                                    {article.category.name}
+                                </span>
+                            )}
+                            {article.featured && (
+                                <span className="inline-flex items-center gap-1.5 px-4 py-2 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded-lg text-sm font-bold backdrop-blur-sm shadow-lg">
+                                    <Quote className="w-4 h-4 fill-yellow-300" /> À la une
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Titre en GRADIENT */}
+                        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight mb-6 drop-shadow-lg bg-gradient-to-r from-brand-blue to-brand-light bg-clip-text text-transparent">
                             {article.title}
                         </h1>
-                        <div className="flex flex-wrap items-center gap-6 text-white/60" style={{ animation: 'fadeInUp 0.8s ease-out 0.3s both' }}>
+
+                        {/* Métadonnées et Auteur */}
+                        <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
                             <div className="flex items-center gap-2">
                                 <Calendar className="w-5 h-5" />
-                                <span className="text-white/80">{formatDate(article.publishedAt || article.createdAt)}</span>
+                                <span>{formatDate(article.publishedAt || article.createdAt)}</span>
                             </div>
                             {article.readTime && (
                                 <div className="flex items-center gap-2">
                                     <Clock className="w-5 h-5" />
-                                    <span>{article.readTime}</span>
+                                    <span>{article.readTime} de lecture</span>
+                                </div>
+                            )}
+                            
+                            {/* NOUVEAU : Badge Auteur */}
+                            {article.author && (
+                                <div className="flex items-center justify-center gap-2 pl-1 pr-3 py-1 bg-white/10 backdrop-blur-sm rounded-full border border-white/10">
+                                    <div className="w-5 h-5 bg-brand-blue rounded-full flex items-center justify-center">
+                                        <span className="text-white text-[9px]">
+                                            {article.author.initials || 'AR'}
+                                        </span>
+                                    </div>
+                                    <span className="font-medium text-white/90">
+                                        {article.author.name || 'AVSD RDC'}
+                                    </span>
                                 </div>
                             )}
                         </div>

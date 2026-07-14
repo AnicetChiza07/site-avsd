@@ -54,7 +54,7 @@ const articleSchema = new mongoose.Schema({
         },
         initials: {
             type: String,
-            default: 'AVSD'
+            default: 'AV'
         }
     }
 }, {
