@@ -23,7 +23,7 @@ const HeroSection = () => {
             {/* 2. Contenu principal */}
             <div className="relative z-10 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-8">
                 
-                {/* Badge Statistique (Ajusté : plus petit, 5K, bordures blanches) */}
+                {/* Badge Statistique */}
                 <div className="flex items-center justify-center w-fit gap-2 text-[15px] rounded-full border border-white/20 bg-white/10 backdrop-blur-sm py-1.5 pr-5 pl-1.5">
                     <div className="flex">
                         <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 border border-white/60">
@@ -45,11 +45,13 @@ const HeroSection = () => {
                         <span>5K</span>
                     </div>
                     
-                    {/* Texte Bénéficiaires */}
-                    <p className="text-white/60 hidden sm:block font-medium">Bénéficiaires</p>
+                    {/* Texte Bénéficiaires (CORRIGÉ : Visible sur mobile avec texte-xs, et un peu plus grand sur écran sm) */}
+                    <p className="text-white/60 text-xs sm:text-sm font-medium ml-1">
+                        Bénéficiaires
+                    </p>
                 </div>
 
-                {/* Titre et Description (Retour à l'original comme demandé) */}
+                {/* Titre et Description */}
                 <div className="flex flex-col items-center gap-4">
                     <h1 className="w-full md:w-[90%] text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-light">
                         Action des Volontaires pour la Solidarité et le Développement (AVSD)
