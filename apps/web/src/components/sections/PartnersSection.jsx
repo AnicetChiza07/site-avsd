@@ -58,11 +58,11 @@ const PartnersSection = () => {
 
                 {/* Container des logos avec masque de fondu */}
                 <div className="mask-fade-edges overflow-hidden w-full relative">
-                    <div className="flex items-center gap-10 animate-scroll-logos w-max">
+                    <div className="flex items-center gap-12 animate-scroll-logos w-max">
                         {duplicatedPartners.map((partner, index) => (
                             <div
                                 key={`${partner._id}-${index}`}
-                                className="flex-shrink-0 w-[180px] h-[100px] sm:w-[180px] sm:h-[100px] flex items-center justify-center"
+                                className="flex-shrink-0 w-[180px] h-[100px] sm:w-[150px] sm:h-[100px] flex items-center justify-center"
                             >
                                 <img
                                     src={getImageUrl(partner.image)}
