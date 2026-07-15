@@ -23,30 +23,33 @@ const HeroSection = () => {
             {/* 2. Contenu principal */}
             <div className="relative z-10 container mx-auto px-4 flex flex-col items-center justify-center text-center gap-8">
                 
-                {/* Badge Statistique (Glassmorphism) */}
-                <div className="flex items-center justify-center w-fit gap-2.5 text-[15px] rounded border border-white/20 bg-white/10 backdrop-blur-sm py-2 px-6 pl-2">
+                {/* Badge Statistique (Ajusté : plus petit, 5K, bordures blanches) */}
+                <div className="flex items-center justify-center w-fit gap-2 text-[15px] rounded-full border border-white/20 bg-white/10 backdrop-blur-sm py-1.5 pr-5 pl-1.5">
                     <div className="flex">
-                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80">
-                            <Users className="w-5 h-5 text-brand-blue" />
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 border border-white/60">
+                            <Users className="w-4 h-4 text-brand-blue" />
                         </div>
-                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80 -ml-2.5">
-                            <UserCheck className="w-5 h-5 text-brand-blue" />
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 border border-white/60 -ml-1.5">
+                            <UserCheck className="w-4 h-4 text-brand-blue" />
                         </div>
-                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80 -ml-2.5">
-                            <Heart className="w-5 h-5 text-brand-blue" />
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 border border-white/60 -ml-1.5">
+                            <Heart className="w-4 h-4 text-brand-blue" />
                         </div>
-                        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/80 border border-white/80 -ml-2.5">
-                            <HandHelping className="w-5 h-5 text-brand-blue" />
+                        <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/90 border border-white/60 -ml-1.5">
+                            <HandHelping className="w-4 h-4 text-brand-blue" />
                         </div>
                     </div>
-                    <div className="w-9 h-9 flex items-center justify-center rounded-full -ml-5 text-white bg-brand-blue border border-white/80 font-bold">
+                    
+                    {/* Cercle 5K */}
+                    <div className="w-8 h-8 flex items-center justify-center rounded-full -ml-3.5 text-white bg-brand-blue border border-white/60 font-bold text-xs">
                         <span>5K</span>
                     </div>
-                    {/* Le texte "Bénéficiaires" est masqué sur mobile pour gagner de la place */}
-                    <p className="text-white/60 hidden sm:block">Bénéficiaires</p>
+                    
+                    {/* Texte Bénéficiaires */}
+                    <p className="text-white/60 hidden sm:block font-medium">Bénéficiaires</p>
                 </div>
 
-                {/* Titre et Description */}
+                {/* Titre et Description (Retour à l'original comme demandé) */}
                 <div className="flex flex-col items-center gap-4">
                     <h1 className="w-full md:w-[90%] text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight bg-clip-text text-transparent bg-gradient-to-r from-brand-blue to-brand-light">
                         Action des Volontaires pour la Solidarité et le Développement (AVSD)
@@ -56,12 +59,12 @@ const HeroSection = () => {
                     </p>
                 </div>
 
-                {/* Boutons d'action (Utilisation de notre composant réutilisable) */}
+                {/* Boutons d'action */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto mt-2">
                     <Button variant="primary" href="#about">
                         Qui sommes-nous
                     </Button>
-                    <Button variant="secondary" href="opportunites">
+                    <Button variant="secondary" href="/opportunites">
                         Voir les opportunités
                     </Button>
                 </div>

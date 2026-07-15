@@ -159,7 +159,7 @@ const InterventionAreasSection = () => {
                             </div>
                             
                             {/* Compteur de villes */}
-                            <div className="flex items-center gap-2 px-4 py-2 bg-brand-blue/10 rounded-full">
+                            <div className="flex w-fit items-center gap-2 px-4 py-2 bg-brand-blue/10 rounded-full">
                                 <CheckCircle2 className="w-5 h-5 text-brand-blue" />
                                 <span className="text-brand-blue font-semibold">
                                     {villesDeLaProvince.length} {villesDeLaProvince.length > 1 ? 'zones' : 'zone'} d'intervention

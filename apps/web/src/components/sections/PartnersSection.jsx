@@ -36,7 +36,7 @@ const PartnersSection = () => {
                         {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
                             <div
                                 key={i}
-                                className="flex-shrink-0 w-[180px] h-[100px] bg-slate-200 rounded-xl animate-shimmer"
+                                className="flex-shrink-0 w-[180px] h-[100px] bg-slate-200 rounded-full animate-shimmer"
                             />
                         ))}
                     </div>
