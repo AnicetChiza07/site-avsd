@@ -20,11 +20,13 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
-        // 1. Empêcher le rechargement naturel du formulaire
         e.preventDefault();
-        console.log('🟢 1. Tentative de connexion pour :', email);
         
-        if (!email || !password) {
+        // 🛡️ CORRECTION CRUCIALE : On nettoie les espaces invisibles avant l'envoi
+        const cleanEmail = email.trim().toLowerCase();
+        const cleanPassword = password.trim();
+
+        if (!cleanEmail || !cleanPassword) {
             toast.error('Veuillez remplir tous les champs', { autoClose: 4000 });
             return;
         }
@@ -32,51 +34,40 @@ const Login = () => {
         setLoading(true);
 
         try {
-            console.log('🟡 2. Envoi de la requête au backend...');
-            const res = await authService.login({ email, password });
-            console.log('🟢 3. Réponse brute du backend :', res);
+            // On envoie les variables nettoyées au backend
+            const res = await authService.login({ email: cleanEmail, password: cleanPassword });
             
-            // Le service retourne response.data, donc le token est dans res.token
             const token = res.token;
             const adminData = res.data;
 
             if (res.success && token && adminData) {
-                console.log('🟢 4. Succès ! Sauvegarde dans le localStorage...');
+                // Sauvegarde sécurisée dans le localStorage
                 localStorage.setItem('token', token);
                 localStorage.setItem('admin', JSON.stringify(adminData));
                 
-                // Mettre à jour le contexte
+                // Mise à jour du contexte d'authentification
                 login(adminData);
                 
                 toast.success('Connexion réussie ! Bienvenue', { autoClose: 3000 });
                 
-                console.log('🟢 5. Redirection vers /dashboard...');
+                // Redirection vers le dashboard
                 navigate('/dashboard', { replace: true });
             } else {
                 throw new Error(res.message || 'Réponse du serveur invalide');
             }
             
         } catch (error) {
-            // 6. GESTION DES ERREURS ROBUSTE
-            console.error('🚨 6. ERREUR CAPTURÉE DANS LE CATCH :', error);
-            console.error('🚨 Détails de la réponse backend :', error.response?.data);
-            
+            // Gestion des erreurs robuste et silencieuse pour l'utilisateur
             const errorMessage = error.response?.data?.message || 'Email ou mot de passe incorrect.';
             
-            console.log('👉 7. Tentative d\'affichage du toast avec le message :', errorMessage);
-            
-            // Forcer l'affichage du toast avec des paramètres explicites pour éviter qu'il disparaisse
             toast.error(errorMessage, { 
-                autoClose: 5000, // 5 secondes
+                autoClose: 5000,
                 closeButton: true,
                 hideProgressBar: false,
                 pauseOnHover: true
             });
-            
-            console.log('✅ 8. Toast supposément affiché.');
         } finally {
-            // 7. CRUCIAL : Désactiver le chargement dans TOUS les cas
-            console.log('⚪ 9. Passage dans le FINALLY : désactivation du loading.');
+            // Désactivation du chargement dans TOUS les cas (succès ou échec)
             setLoading(false);
         }
     };
