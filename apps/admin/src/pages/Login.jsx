@@ -15,6 +15,7 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
+    
     const { login } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -22,33 +23,56 @@ const Login = () => {
         e.preventDefault();
         
         if (!email || !password) {
-            toast.error('Veuillez remplir tous les champs');
+            toast.error('Veuillez remplir tous les champs', { autoClose: 4000 });
             return;
         }
 
         setLoading(true);
 
         try {
+            console.log("🟡 Tentative de connexion pour :", email);
+            
+            // 1. Appel au service
             const res = await authService.login({ email, password });
+            console.log("🟢 Réponse du serveur reçue :", res);
             
-            console.log('Réponse du serveur:', res.data);
-            
-            // Sauvegarder le token et les infos admin
-            localStorage.setItem('token', res.data.data.token);
-            localStorage.setItem('admin', JSON.stringify(res.data.data.admin));
-            
-            // Mettre à jour le contexte
-            login(res.data.data.admin);
-            
-            toast.success('Connexion réussie ! Bienvenue');
-            
-            navigate('/dashboard');
+            // 2. CORRECTION MAJEURE : Extraire les données correctement
+            // Comme authService retourne response.data, le token est directement dans res.token
+            // et les infos admin sont dans res.data
+            const token = res.token;
+            const adminData = res.data;
+
+            if (res.success && token && adminData) {
+                // 3. Sauvegarder dans le localStorage
+                localStorage.setItem('token', token);
+                localStorage.setItem('admin', JSON.stringify(adminData));
+                
+                // 4. Mettre à jour le contexte d'authentification
+                login(adminData);
+                
+                toast.success('Connexion réussie ! Bienvenue', { autoClose: 3000 });
+                
+                // 5. Rediriger vers le dashboard
+                console.log("🟢 Redirection vers /dashboard...");
+                navigate('/dashboard', { replace: true });
+            } else {
+                throw new Error(res.message || 'Réponse du serveur invalide');
+            }
             
         } catch (error) {
-            console.error('Erreur de connexion:', error);
-            const errorMessage = error.response?.data?.message || 'Erreur de connexion. Vérifiez vos identifiants.';
-            toast.error(errorMessage);
+            // 6. GESTION DES ERREURS ROBUSTE
+            console.error('🚨 ERREUR DE CONNEXION DÉTAILLÉE:', error);
+            console.error('🚨 Détails de la réponse backend:', error.response?.data);
+            
+            const errorMessage = error.response?.data?.message || 'Email ou mot de passe incorrect.';
+            
+            // Le toast reste affiché 5 secondes avec un bouton pour fermer
+            toast.error(errorMessage, { 
+                autoClose: 5000,
+                closeButton: true 
+            });
         } finally {
+            // 7. CRUCIAL : Désactiver le chargement dans TOUS les cas (succès ou échec)
             setLoading(false);
         }
     };
@@ -120,6 +144,7 @@ const Login = () => {
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
                                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                                tabIndex="-1"
                             >
                                 {showPassword ? (
                                     <EyeOff className="h-5 w-5" />
