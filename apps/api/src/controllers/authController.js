@@ -1,5 +1,5 @@
 // ===========================================
-// CONTRÔLEUR D'AUTHENTIFICATION
+// CONTRÔLEUR D'AUTHENTIFICATION (AVEC LOGS DE DIAGNOSTIC)
 // ===========================================
 
 import jwt from 'jsonwebtoken';
@@ -12,51 +12,44 @@ import Admin from '../models/Admin.js';
 export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+        
+        console.log('--- NOUVELLE TENTATIVE DE CONNEXION ---');
+        console.log('1. Email reçu :', `[${email}]`);
+        console.log('2. Mot de passe reçu :', `[${password}]`);
 
-        // 1. Vérifier si l'email et le mot de passe sont fournis
         if (!email || !password) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Veuillez fournir un email et un mot de passe' 
-            });
+            console.log('❌ ÉCHEC : Email ou mot de passe manquant dans la requête.');
+            return res.status(400).json({ success: false, message: 'Veuillez fournir un email et un mot de passe' });
         }
 
-        // 2. Vérifier si l'admin existe
         const admin = await Admin.findOne({ email });
         if (!admin) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Email ou mot de passe incorrect' 
-            });
+            console.log('❌ ÉCHEC : Aucun administrateur trouvé avec cet email dans la base de données.');
+            return res.status(401).json({ success: false, message: 'Email ou mot de passe incorrect' });
         }
+        
+        console.log('✅ Admin trouvé. Nom:', admin.name, '| isActive:', admin.isActive);
 
-        // 3. Vérifier si le compte est actif
         if (!admin.isActive) {
-            return res.status(403).json({ 
-                success: false, 
-                message: 'Ce compte a été désactivé. Contactez le support.' 
-            });
+            console.log('❌ ÉCHEC : Le compte existe mais le champ isActive est sur false.');
+            return res.status(403).json({ success: false, message: 'Ce compte a été désactivé. Contactez le support.' });
         }
 
-        // 4. Vérifier le mot de passe
         const isMatch = await bcrypt.compare(password, admin.password);
+        console.log('🔑 Résultat de la comparaison du mot de passe (bcrypt) :', isMatch);
+        
         if (!isMatch) {
-            return res.status(401).json({ 
-                success: false, 
-                message: 'Email ou mot de passe incorrect' 
-            });
+            console.log('❌ ÉCHEC : Le mot de passe fourni ne correspond pas au hachage en base de données.');
+            return res.status(401).json({ success: false, message: 'Email ou mot de passe incorrect' });
         }
 
-        // 5. CORRECTION MAJEURE : Mettre à jour lastLogin sans déclencher la validation du modèle entier
-        // Cela évite les erreurs silencieuses si un champ comme 'avatar' est null mais marqué 'required'
+        // Mise à jour sûre sans déclencher la validation du modèle entier
         await Admin.updateOne({ _id: admin._id }, { lastLogin: Date.now() });
+        console.log('✅ lastLogin mis à jour avec succès.');
 
-        // 6. Générer le token JWT
-        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
-            expiresIn: '7d'
-        });
+        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
+        console.log('🎉 SUCCÈS : Connexion réussie et token généré pour', admin.email);
 
-        // 7. Renvoyer la réponse (sans le mot de passe)
         res.status(200).json({
             success: true,
             message: 'Connexion réussie',
@@ -71,11 +64,8 @@ export const login = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('❌ ERREUR FATALE LOGIN:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erreur serveur lors de la connexion' 
-        });
+        console.error('💥 ERREUR FATALE DANS LE CONTRÔLEUR LOGIN :', error);
+        res.status(500).json({ success: false, message: 'Erreur serveur lors de la connexion' });
     }
 };
 
@@ -84,26 +74,14 @@ export const login = async (req, res) => {
 // @access  Privé (Admin)
 export const getMe = async (req, res) => {
     try {
-        // req.admin est ajouté par le middleware 'protect'
         const admin = await Admin.findById(req.admin.id).select('-password');
-        
         if (!admin) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Administrateur non trouvé' 
-            });
+            return res.status(404).json({ success: false, message: 'Administrateur non trouvé' });
         }
-
-        res.status(200).json({
-            success: true,
-            data: admin
-        });
+        res.status(200).json({ success: true, data: admin });
     } catch (error) {
         console.error('❌ Erreur getMe:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erreur serveur' 
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 
@@ -112,17 +90,9 @@ export const getMe = async (req, res) => {
 // @access  Privé (Admin)
 export const logout = async (req, res) => {
     try {
-        // Côté client, on supprimera le token du localStorage.
-        // Côté serveur, on renvoie juste un succès.
-        res.status(200).json({
-            success: true,
-            message: 'Déconnexion réussie'
-        });
+        res.status(200).json({ success: true, message: 'Déconnexion réussie' });
     } catch (error) {
         console.error('❌ Erreur logout:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erreur serveur' 
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
