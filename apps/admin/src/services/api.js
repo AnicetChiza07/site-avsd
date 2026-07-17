@@ -12,23 +12,19 @@ const api = axios.create({
 });
 
 // Fonction helper pour obtenir l'URL de base (sans /api)
-// Utilisée pour construire les URLs complètes des images uploadées
 export const getBaseUrl = () => {
     const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     return apiUrl.replace('/api', '');
 };
 
 // Fonction helper pour obtenir l'URL complète d'une image
-// Détecte automatiquement si c'est une URL Cloudinary ou un chemin local
 export const getImageUrl = (imagePath) => {
     if (!imagePath) return '';
     
-    // Si c'est déjà une URL complète (Cloudinary ou autre)
     if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
         return imagePath;
     }
     
-    // Sinon, c'est un chemin local, on ajoute l'URL de base
     return `${getBaseUrl()}${imagePath}`;
 };
 
@@ -46,15 +42,17 @@ api.interceptors.request.use(
     }
 );
 
-// Intercepteur pour gérer les erreurs 401
+// Intercepteur pour gérer les erreurs 401 (CORRIGÉ)
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // Token invalide ou expiré
-            localStorage.removeItem('token');
-            localStorage.removeItem('admin');
-            window.location.href = '/login';
+            // CORRECTION : On ne force le rechargement que si on n'est PAS déjà sur la page de login
+            if (window.location.pathname !== '/login') {
+                localStorage.removeItem('token');
+                localStorage.removeItem('admin');
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

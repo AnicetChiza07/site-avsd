@@ -47,9 +47,9 @@ export const login = async (req, res) => {
             });
         }
 
-        // 5. Mettre à jour la dernière connexion
-        admin.lastLogin = Date.now();
-        await admin.save();
+        // 5. CORRECTION MAJEURE : Mettre à jour lastLogin sans déclencher la validation du modèle entier
+        // Cela évite les erreurs silencieuses si un champ comme 'avatar' est null mais marqué 'required'
+        await Admin.updateOne({ _id: admin._id }, { lastLogin: Date.now() });
 
         // 6. Générer le token JWT
         const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
@@ -65,12 +65,13 @@ export const login = async (req, res) => {
                 id: admin._id,
                 name: admin.name,
                 email: admin.email,
-                role: admin.role
+                role: admin.role,
+                avatar: admin.avatar || null
             }
         });
 
     } catch (error) {
-        console.error('❌ Erreur lors de la connexion:', error);
+        console.error('❌ ERREUR FATALE LOGIN:', error);
         res.status(500).json({ 
             success: false, 
             message: 'Erreur serveur lors de la connexion' 
@@ -83,14 +84,26 @@ export const login = async (req, res) => {
 // @access  Privé (Admin)
 export const getMe = async (req, res) => {
     try {
+        // req.admin est ajouté par le middleware 'protect'
         const admin = await Admin.findById(req.admin.id).select('-password');
+        
         if (!admin) {
-            return res.status(404).json({ success: false, message: 'Administrateur non trouvé' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Administrateur non trouvé' 
+            });
         }
-        res.status(200).json({ success: true, data: admin });
+
+        res.status(200).json({
+            success: true,
+            data: admin
+        });
     } catch (error) {
         console.error('❌ Erreur getMe:', error);
-        res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur serveur' 
+        });
     }
 };
 
@@ -99,9 +112,17 @@ export const getMe = async (req, res) => {
 // @access  Privé (Admin)
 export const logout = async (req, res) => {
     try {
-        res.status(200).json({ success: true, message: 'Déconnexion réussie' });
+        // Côté client, on supprimera le token du localStorage.
+        // Côté serveur, on renvoie juste un succès.
+        res.status(200).json({
+            success: true,
+            message: 'Déconnexion réussie'
+        });
     } catch (error) {
         console.error('❌ Erreur logout:', error);
-        res.status(500).json({ success: false, message: 'Erreur serveur' });
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur serveur' 
+        });
     }
 };
