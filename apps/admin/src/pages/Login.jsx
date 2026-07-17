@@ -20,7 +20,9 @@ const Login = () => {
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
+        // 1. Empêcher le rechargement naturel du formulaire
         e.preventDefault();
+        console.log('🟢 1. Tentative de connexion pour :', email);
         
         if (!email || !password) {
             toast.error('Veuillez remplir tous les champs', { autoClose: 4000 });
@@ -30,30 +32,25 @@ const Login = () => {
         setLoading(true);
 
         try {
-            console.log("🟡 Tentative de connexion pour :", email);
-            
-            // 1. Appel au service
+            console.log('🟡 2. Envoi de la requête au backend...');
             const res = await authService.login({ email, password });
-            console.log("🟢 Réponse du serveur reçue :", res);
+            console.log('🟢 3. Réponse brute du backend :', res);
             
-            // 2. CORRECTION MAJEURE : Extraire les données correctement
-            // Comme authService retourne response.data, le token est directement dans res.token
-            // et les infos admin sont dans res.data
+            // Le service retourne response.data, donc le token est dans res.token
             const token = res.token;
             const adminData = res.data;
 
             if (res.success && token && adminData) {
-                // 3. Sauvegarder dans le localStorage
+                console.log('🟢 4. Succès ! Sauvegarde dans le localStorage...');
                 localStorage.setItem('token', token);
                 localStorage.setItem('admin', JSON.stringify(adminData));
                 
-                // 4. Mettre à jour le contexte d'authentification
+                // Mettre à jour le contexte
                 login(adminData);
                 
                 toast.success('Connexion réussie ! Bienvenue', { autoClose: 3000 });
                 
-                // 5. Rediriger vers le dashboard
-                console.log("🟢 Redirection vers /dashboard...");
+                console.log('🟢 5. Redirection vers /dashboard...');
                 navigate('/dashboard', { replace: true });
             } else {
                 throw new Error(res.message || 'Réponse du serveur invalide');
@@ -61,18 +58,25 @@ const Login = () => {
             
         } catch (error) {
             // 6. GESTION DES ERREURS ROBUSTE
-            console.error('🚨 ERREUR DE CONNEXION DÉTAILLÉE:', error);
-            console.error('🚨 Détails de la réponse backend:', error.response?.data);
+            console.error('🚨 6. ERREUR CAPTURÉE DANS LE CATCH :', error);
+            console.error('🚨 Détails de la réponse backend :', error.response?.data);
             
             const errorMessage = error.response?.data?.message || 'Email ou mot de passe incorrect.';
             
-            // Le toast reste affiché 5 secondes avec un bouton pour fermer
+            console.log('👉 7. Tentative d\'affichage du toast avec le message :', errorMessage);
+            
+            // Forcer l'affichage du toast avec des paramètres explicites pour éviter qu'il disparaisse
             toast.error(errorMessage, { 
-                autoClose: 5000,
-                closeButton: true 
+                autoClose: 5000, // 5 secondes
+                closeButton: true,
+                hideProgressBar: false,
+                pauseOnHover: true
             });
+            
+            console.log('✅ 8. Toast supposément affiché.');
         } finally {
-            // 7. CRUCIAL : Désactiver le chargement dans TOUS les cas (succès ou échec)
+            // 7. CRUCIAL : Désactiver le chargement dans TOUS les cas
+            console.log('⚪ 9. Passage dans le FINALLY : désactivation du loading.');
             setLoading(false);
         }
     };

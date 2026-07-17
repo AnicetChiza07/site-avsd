@@ -83,26 +83,14 @@ export const login = async (req, res) => {
 // @access  Privé (Admin)
 export const getMe = async (req, res) => {
     try {
-        // req.admin est ajouté par le middleware 'protect'
         const admin = await Admin.findById(req.admin.id).select('-password');
-        
         if (!admin) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Administrateur non trouvé' 
-            });
+            return res.status(404).json({ success: false, message: 'Administrateur non trouvé' });
         }
-
-        res.status(200).json({
-            success: true,
-            data: admin
-        });
+        res.status(200).json({ success: true, data: admin });
     } catch (error) {
         console.error('❌ Erreur getMe:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erreur serveur' 
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
 
@@ -111,17 +99,9 @@ export const getMe = async (req, res) => {
 // @access  Privé (Admin)
 export const logout = async (req, res) => {
     try {
-        // Côté client, on supprimera le token du localStorage.
-        // Côté serveur, on peut juste renvoyer un succès.
-        res.status(200).json({
-            success: true,
-            message: 'Déconnexion réussie'
-        });
+        res.status(200).json({ success: true, message: 'Déconnexion réussie' });
     } catch (error) {
         console.error('❌ Erreur logout:', error);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erreur serveur' 
-        });
+        res.status(500).json({ success: false, message: 'Erreur serveur' });
     }
 };
