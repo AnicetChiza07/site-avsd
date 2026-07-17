@@ -28,39 +28,45 @@ const Login = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        // Validation basique côté client
+        // 1. Validation basique côté client
         if (!formData.email || !formData.password) {
             toast.error('Veuillez remplir tous les champs', { autoClose: 4000 });
             return;
         }
 
+        // 2. Activation du état de chargement
         setLoading(true);
 
         try {
-            // Appel au backend
-            const response = await authService.login(formData.email, formData.password);
-            
-            // Vérification de la réponse
-            if (response.data && response.data.token) {
-                // Sauvegarde du token et des infos utilisateur
-                localStorage.setItem('adminToken', response.data.token);
-                localStorage.setItem('adminUser', JSON.stringify(response.data.data));
+            // 3. Appel au service avec un objet propre { email, password }
+            const responseData = await authService.login({
+                email: formData.email,
+                password: formData.password
+            });
+
+            // 4. Vérification que la connexion a réussi et qu'on a un token
+            if (responseData.success && responseData.token) {
+                // Sauvegarde cohérente avec ton authService
+                localStorage.setItem('token', responseData.token);
+                localStorage.setItem('admin', JSON.stringify(responseData.data));
                 
                 toast.success('Connexion réussie ! Redirection...', {
                     autoClose: 2000
                 });
                 
-                // Délai pour laisser le temps au toast de s'afficher avant la redirection
+                // Petit délai pour laisser le temps au toast de s'afficher avant la redirection
                 setTimeout(() => {
                     navigate(from, { replace: true });
                 }, 1000);
+            } else {
+                throw new Error(responseData.message || 'Échec de la connexion');
             }
         } catch (error) {
-            // GESTION DES ERREURS ROBUSTE
+            // 5. GESTION DES ERREURS ROBUSTE
             console.error('🚨 ERREUR DE CONNEXION DÉTAILLÉE:', error);
             
-            // On récupère le message du backend, ou un message par défaut
-            const errorMessage = error.response?.data?.message || 'Une erreur est survenue. Vérifiez vos identifiants ou votre connexion.';
+            // On récupère le message exact du backend, ou un message par défaut
+            const errorMessage = error.response?.data?.message || 'Email ou mot de passe incorrect.';
             
             // On force le toast à rester affiché 5 secondes avec un bouton pour fermer
             toast.error(errorMessage, {
@@ -68,7 +74,7 @@ const Login = () => {
                 closeButton: true
             });
         } finally {
-            // CRUCIAL : On désactive le chargement DANS TOUS LES CAS (succès ou échec)
+            // 6. CRUCIAL : On désactive le chargement DANS TOUS LES CAS (succès ou échec)
             setLoading(false);
         }
     };
@@ -127,7 +133,8 @@ const Login = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors focus:outline-none"
+                                tabIndex="-1"
                             >
                                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                             </button>
@@ -154,7 +161,7 @@ const Login = () => {
 
                 {/* Pied de formulaire */}
                 <div className="mt-8 text-center">
-                    <a href="/" className="text-sm text-gray-500 hover:text-brand-blue transition-colors">
+                    <a href="/" className="text-sm text-gray-500 hover:text-brand-blue transition-colors inline-flex items-center gap-1">
                         ← Retour au site principal
                     </a>
                 </div>

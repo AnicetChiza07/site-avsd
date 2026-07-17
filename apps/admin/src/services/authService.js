@@ -6,17 +6,17 @@ import api from './api';
 
 const login = async (credentials) => {
     const response = await api.post('/auth/login', credentials);
-    return response;
+    return response.data; // ✅ CORRECTION : On retourne les données, pas l'objet Axios complet
 };
 
 const getMe = async () => {
     const response = await api.get('/auth/me');
-    return response;
+    return response.data;
 };
 
 const logout = async () => {
     const response = await api.post('/auth/logout');
-    return response;
+    return response.data;
 };
 
 // Vérifier si l'utilisateur est authentifié
