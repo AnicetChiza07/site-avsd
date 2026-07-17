@@ -1,168 +1,127 @@
 // ===========================================
-// CONTRÔLEUR AUTHENTIFICATION
+// CONTRÔLEUR D'AUTHENTIFICATION
 // ===========================================
 
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 import Admin from '../models/Admin.js';
 
-// ===========================================
-// @desc    Générer un token JWT
-// ===========================================
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
-    });
-};
-
-// ===========================================
-// @desc    Connexion admin
+// @desc    Connexion de l'admin
 // @route   POST /api/auth/login
 // @access  Public
-// ===========================================
-const login = async (req, res) => {
+export const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        console.log('📥 Tentative de connexion:', { email });
-
-        // Validation
+        // 1. Vérifier si l'email et le mot de passe sont fournis
         if (!email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Veuillez fournir un email et un mot de passe'
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Veuillez fournir un email et un mot de passe' 
             });
         }
 
-        // Trouver l'admin
-        const admin = await Admin.findOne({ email: email.toLowerCase().trim() });
-
+        // 2. Vérifier si l'admin existe
+        const admin = await Admin.findOne({ email });
         if (!admin) {
-            console.log('❌ Admin non trouvé');
-            return res.status(401).json({
-                success: false,
-                message: 'Email ou mot de passe incorrect'
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Email ou mot de passe incorrect' 
             });
         }
 
-        // Vérifier si le compte est actif
+        // 3. Vérifier si le compte est actif
         if (!admin.isActive) {
-            return res.status(403).json({
-                success: false,
-                message: 'Votre compte a été désactivé'
+            return res.status(403).json({ 
+                success: false, 
+                message: 'Ce compte a été désactivé. Contactez le support.' 
             });
         }
 
-        // Vérifier le mot de passe
-        let isMatch = false;
-        
-        // Essayer avec matchPassword si la méthode existe
-        if (typeof admin.matchPassword === 'function') {
-            isMatch = await admin.matchPassword(password);
-        } else {
-            // Sinon, utiliser bcrypt directement
-            const bcrypt = await import('bcryptjs');
-            isMatch = await bcrypt.default.compare(password, admin.password);
-        }
-
+        // 4. Vérifier le mot de passe
+        const isMatch = await bcrypt.compare(password, admin.password);
         if (!isMatch) {
-            console.log('❌ Mot de passe incorrect');
-            return res.status(401).json({
-                success: false,
-                message: 'Email ou mot de passe incorrect'
+            return res.status(401).json({ 
+                success: false, 
+                message: 'Email ou mot de passe incorrect' 
             });
         }
 
-        // Mettre à jour la dernière connexion
-        admin.lastLogin = new Date();
+        // 5. Mettre à jour la dernière connexion
+        admin.lastLogin = Date.now();
         await admin.save();
 
-        // Générer le token
-        const token = generateToken(admin._id);
+        // 6. Générer le token JWT
+        const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, {
+            expiresIn: '7d'
+        });
 
-        console.log('✅ Connexion réussie:', admin.email);
-
+        // 7. Renvoyer la réponse (sans le mot de passe)
         res.status(200).json({
             success: true,
             message: 'Connexion réussie',
+            token,
             data: {
-                token,
-                admin: {
-                    _id: admin._id,
-                    name: admin.name,
-                    email: admin.email,
-                    role: admin.role,
-                    avatar: admin.avatar,
-                    createdAt: admin.createdAt,
-                    lastLogin: admin.lastLogin
-                }
+                id: admin._id,
+                name: admin.name,
+                email: admin.email,
+                role: admin.role
             }
         });
 
     } catch (error) {
-        console.error('❌ Erreur login:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur lors de la connexion: ' + error.message
+        console.error('❌ Erreur lors de la connexion:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur serveur lors de la connexion' 
         });
     }
 };
 
-// ===========================================
 // @desc    Obtenir le profil de l'admin connecté
 // @route   GET /api/auth/me
-// @access  Privé
-// ===========================================
-const getMe = async (req, res) => {
+// @access  Privé (Admin)
+export const getMe = async (req, res) => {
     try {
-        const admin = await Admin.findById(req.admin._id).select('-password');
-
+        // req.admin est ajouté par le middleware 'protect'
+        const admin = await Admin.findById(req.admin.id).select('-password');
+        
         if (!admin) {
-            return res.status(404).json({
-                success: false,
-                message: 'Utilisateur non trouvé'
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Administrateur non trouvé' 
             });
         }
 
         res.status(200).json({
             success: true,
-            data: {
-                _id: admin._id,
-                name: admin.name,
-                email: admin.email,
-                role: admin.role,
-                avatar: admin.avatar,
-                createdAt: admin.createdAt,
-                lastLogin: admin.lastLogin
-            }
+            data: admin
         });
-
     } catch (error) {
-        console.error('Erreur getMe:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur'
+        console.error('❌ Erreur getMe:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur serveur' 
         });
     }
 };
 
-// ===========================================
-// @desc    Déconnexion admin
+// @desc    Déconnexion de l'admin
 // @route   POST /api/auth/logout
-// @access  Privé
-// ===========================================
-const logout = async (req, res) => {
+// @access  Privé (Admin)
+export const logout = async (req, res) => {
     try {
+        // Côté client, on supprimera le token du localStorage.
+        // Côté serveur, on peut juste renvoyer un succès.
         res.status(200).json({
             success: true,
             message: 'Déconnexion réussie'
         });
     } catch (error) {
-        console.error('Erreur logout:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Erreur serveur lors de la déconnexion'
+        console.error('❌ Erreur logout:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erreur serveur' 
         });
     }
 };
-
-export { login, getMe, logout, generateToken };
