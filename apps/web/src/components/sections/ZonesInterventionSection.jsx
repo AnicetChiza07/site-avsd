@@ -110,7 +110,7 @@ const ZonesInterventionSection = () => {
             <section data-theme="light" className="py-16 sm:py-24">
                 <div className="container">
                     <SectionTitle 
-                        badge="Axes"
+                        badge="Terrain"
                         title="Nos zones d'intervention"
                         description="Découvrez les régions où nous intervenons pour améliorer les conditions de vie des communautés."
                     />
@@ -157,9 +157,9 @@ const ZonesInterventionSection = () => {
         <section data-theme="light" className="py-16 sm:py-24">
             <div className="container">
                 <SectionTitle 
-                    badge="Axes"
-                    title="Nos zones d'intervention"
-                    description="Découvrez les régions où nous intervenons pour améliorer les conditions de vie des communautés."
+                    badge="Actions"
+                    title="Nos actions en image"
+                    description="Retour en images sur nos activités et projets menés au service des communautés."
                 />
 
                 <div className="relative mt-12">
