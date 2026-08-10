@@ -163,7 +163,13 @@ const Archives = () => {
     };
 
     return (
-        <PageBanner title="Nos archives" subtitle="Consultez nos rapports, documents et publications." bgImage={bgImage} badge="Archives" badgeIcon={FileText}>
+        <PageBanner 
+            title="Nos rapports d'activités" 
+            subtitle="Consultez nos rapports, documents et publications." 
+            bgImage={bgImage} 
+            badge="Documents" 
+            badgeIcon={FileText}>
+
             <SEO 
                 title="Nos archives"
                 description="Consultez les archives de l'AVSD RDC : rapports, documents officiels, publications et ressources sur nos actions humanitaires en RDC."
