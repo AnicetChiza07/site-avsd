@@ -95,7 +95,7 @@ const Dashboard = () => {
             link: '/categories'
         },
         {
-            title: 'Zones',
+            title: 'Actions en images',
             value: stats?.zones || 0,
             icon: Map,
             color: 'bg-red-500',
