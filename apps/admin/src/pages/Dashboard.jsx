@@ -65,7 +65,7 @@ const Dashboard = () => {
             link: '/articles'
         },
         {
-            title: 'Archives',
+            title: 'Nos rapports',
             value: stats?.archives || 0,
             icon: FolderArchive,
             color: 'bg-cyan-500',
