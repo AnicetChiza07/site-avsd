@@ -111,8 +111,8 @@ const ZonesInterventionSection = () => {
                 <div className="container">
                     <SectionTitle 
                         badge="Terrain"
-                        title="Nos zones d'intervention"
-                        description="Découvrez les régions où nous intervenons pour améliorer les conditions de vie des communautés."
+                        title="Nos actions en images"
+                        description="Retour en images sur nos activités et projets menés au service des communautés."
                     />
 
                     {/* Skeleton du carrousel */}
