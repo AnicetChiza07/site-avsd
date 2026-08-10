@@ -11,7 +11,7 @@ import {
 import AdminLayout from '../components/layout/AdminLayout';
 import galleryService from '../services/galleryService';
 import galleryCategoryService from '../services/galleryCategoryService';
-import { getBaseUrl } from '../services/api';
+import { getImageUrl } from '../services/api';
 
 const Gallery = () => {
     // États principaux
@@ -236,7 +236,8 @@ const Gallery = () => {
             category: image.category?._id || ''
         });
         setImageFile(null);
-        setImagePreview(image.image ? `${getBaseUrl()}${image.image}` : null);
+        // ✅ CORRECTION : Utilisation de getImageUrl au lieu de la concaténation manuelle
+        setImagePreview(image.image ? getImageUrl(image.image) : null);
         setIsEditImageModalOpen(true);
     };
 
@@ -338,7 +339,7 @@ const Gallery = () => {
                         ) : (
                             <FolderPlus className="w-4 h-4" />
                         )}
-                        Créer une nouvelle catégorie
+                        Créer
                     </button>
                 </form>
 
@@ -421,10 +422,15 @@ const Gallery = () => {
                                 className="group relative bg-white rounded-xl overflow-hidden border border-gray-200 hover:shadow-lg transition-all"
                             >
                                 <div className="aspect-square overflow-hidden bg-gray-100">
+                                    {/* ✅ CORRECTION MAJEURE : Utilisation de getImageUrl + gestion d'erreur onError */}
                                     <img 
-                                        src={img.image ? `${getBaseUrl()}${img.image}` : '/placeholder.jpg'} 
+                                        src={getImageUrl(img.image)} 
                                         alt={img.title} 
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                        onError={(e) => {
+                                            e.target.onerror = null; 
+                                            e.target.src = 'https://via.placeholder.com/400x400?text=Image+non+disponible';
+                                        }}
                                     />
                                 </div>
                                 
@@ -674,7 +680,11 @@ const Gallery = () => {
                                                     <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover rounded-lg" />
                                                     <button 
                                                         type="button"
-                                                        onClick={() => { setImageFile(null); setImagePreview(editingImage.image ? `${getBaseUrl()}${editingImage.image}` : null); }}
+                                                        onClick={() => { 
+                                                            setImageFile(null); 
+                                                            // ✅ CORRECTION : Utilisation de getImageUrl ici aussi
+                                                            setImagePreview(editingImage.image ? getImageUrl(editingImage.image) : null); 
+                                                        }}
                                                         className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                                                     >
                                                         <X className="w-3.5 h-3.5" />

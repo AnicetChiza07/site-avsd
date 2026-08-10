@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import AdminLayout from '../components/layout/AdminLayout';
 import partnerService from '../services/partnerService';
-import { getBaseUrl } from '../services/api';
+// ✅ CORRECTION 1 : On importe getImageUrl au lieu de getBaseUrl
+import { getImageUrl } from '../services/api';
 
 const Partners = () => {
     const [partners, setPartners] = useState([]);
@@ -63,7 +64,8 @@ const Partners = () => {
         setEditingPartner(partner);
         setFormData({ order: partner.order.toString() });
         setImageFile(null);
-        setImagePreview(`${getBaseUrl()}${partner.image}`);
+        // ✅ CORRECTION 2 : Utilisation de getImageUrl pour l'aperçu en édition
+        setImagePreview(getImageUrl(partner.image));
         setIsModalOpen(true);
     };
 
@@ -172,10 +174,15 @@ const Partners = () => {
                                 className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition-shadow group relative"
                             >
                                 <div className="h-32 overflow-hidden bg-gray-50 flex items-center justify-center p-4">
+                                    {/* ✅ CORRECTION 3 : Utilisation de getImageUrl + gestion d'erreur onError */}
                                     <img 
-                                        src={`${getBaseUrl()}${partner.image}`} 
+                                        src={getImageUrl(partner.image)} 
                                         alt="Partenaire" 
                                         className="max-w-full max-h-full object-contain"
+                                        onError={(e) => {
+                                            e.target.onerror = null; 
+                                            e.target.src = 'https://via.placeholder.com/300x150?text=Logo+non+disponible';
+                                        }}
                                     />
                                 </div>
                                 <div className="p-3 border-t border-gray-100">
