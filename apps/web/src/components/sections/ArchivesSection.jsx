@@ -66,7 +66,7 @@ const ArchivesSection = () => {
             <div className="container">
                 <SectionTitle 
                     badge="Documents"
-                    title="Nos publications"
+                    title="Nos rapports d'activités"
                     description="Consultez nos rapports, documents officiels et publications."
                 />
 
