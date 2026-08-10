@@ -52,7 +52,7 @@ function App() {
                         <Route path="/opportunites" element={<Opportunites />} />
                         <Route path="/opportunites/:id" element={<OpportunityDetail />} />
                         <Route path="/galerie" element={<Gallery />} />
-                        <Route path="/rapports" element={<Archives />} />
+                        <Route path="/archives" element={<Archives />} />
                         <Route path="/rapports/:slug" element={<ArchiveDetail />} />
                         <Route path="/contact" element={<Contact />} />
                     </Route>
