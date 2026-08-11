@@ -5,11 +5,11 @@ import SEO from '../components/SEO';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
 import bgImage from '../assets/images/Hero/herobg.jpg';
-import archiveService from '../services/archiveService';
-import { getBaseUrl } from '../services/api';
+import archiveService from '../services/archiveService'; // On garde le service tel quel
+import { getImageUrl } from '../services/api'; // ✅ Utilisation de notre fonction robuste
 
-// Composant carte archive (défini en dehors pour éviter les re-renders)
-const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
+// Composant carte rapport
+const RapportCard = ({ rapport, index, isFeatured = false, onDownload }) => {
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -17,18 +17,20 @@ const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
 
     return (
         <Link 
-            to={`/archives/${archive.slug}`} 
+            to={`/rapports/${rapport.slug}`} // ✅ URL changée en /rapports
             className={`group relative ${isFeatured ? 'h-[500px]' : 'h-96'} rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 block`}
             style={{ animation: `fadeInUp 0.5s ease-out ${index * 0.1}s both` }}
         >
-            {/* Image de couverture en background */}
+            {/* Image de couverture en background avec getImageUrl */}
             <img 
-                src={archive.coverImage 
-                    ? (archive.coverImage.startsWith('http') ? archive.coverImage : `${getBaseUrl()}${archive.coverImage}`)
-                    : '/placeholder.jpg'} 
-                alt={archive.title} 
+                src={rapport.coverImage ? getImageUrl(rapport.coverImage) : '/placeholder.jpg'} 
+                alt={rapport.title} 
                 loading="lazy" 
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                onError={(e) => {
+                    e.target.onerror = null; 
+                    e.target.src = 'https://via.placeholder.com/800x600?text=Document';
+                }}
             />
 
             {/* Overlay gradient */}
@@ -40,9 +42,9 @@ const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-900">
                         <Calendar className="w-3.5 h-3.5" />
-                        <span>{formatDate(archive.publishedAt || archive.createdAt)}</span>
+                        <span>{formatDate(rapport.publishedAt || rapport.createdAt)}</span>
                     </div>
-                    {archive.featured && (
+                    {rapport.featured && (
                         <span className="px-3 py-1.5 bg-yellow-500 text-black text-xs font-bold rounded-full shadow-lg">
                             À la une
                         </span>
@@ -52,10 +54,10 @@ const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
                 {/* Titre et description en bas */}
                 <div className="space-y-3">
                     <h3 className={`${isFeatured ? 'text-2xl lg:text-3xl' : 'text-xl'} font-heading text-white mb-2 line-clamp-2 leading-tight drop-shadow-lg`}>
-                        {archive.title}
+                        {rapport.title}
                     </h3>
                     <p className={`text-white/90 ${isFeatured ? 'text-base' : 'text-sm'} leading-relaxed line-clamp-2 drop-shadow-md`}>
-                        {archive.excerpt}
+                        {rapport.excerpt}
                     </p>
 
                     {/* Actions en bas */}
@@ -65,7 +67,7 @@ const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
                             <ArrowUpRight className="w-4 h-4 transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                         </div>
                         <button 
-                            onClick={(e) => onDownload(e, archive.fileUrl, `${archive.title}.pdf`)}
+                            onClick={(e) => onDownload(e, rapport.fileUrl, `${rapport.title}.pdf`)}
                             className={`${isFeatured ? 'w-12 h-12' : 'w-11 h-11'} flex items-center justify-center bg-brand-blue hover:bg-blue-800 text-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110`}
                             title="Télécharger le PDF"
                         >
@@ -81,60 +83,60 @@ const ArchiveCard = ({ archive, index, isFeatured = false, onDownload }) => {
     );
 };
 
-const Archives = () => {
-    const [archives, setArchives] = useState([]);
+const Rapports = () => { // ✅ Nom du composant changé
+    const [rapports, setRapports] = useState([]); // ✅ Variables renommées
     const [loading, setLoading] = useState(true);
     const [selectedYear, setSelectedYear] = useState('Tous');
     const [currentPage, setCurrentPage] = useState(1);
-    const archivesPerPage = 12;
+    const rapportsPerPage = 12;
 
     useEffect(() => {
-        const fetchArchives = async () => {
+        const fetchRapports = async () => {
             try {
-                const res = await archiveService.getArchives();
-                const archivesData = Array.isArray(res) ? res : (res.data || []);
-                setArchives(archivesData);
+                const res = await archiveService.getArchives(); // Le backend peut garder le nom "archives"
+                const rapportsData = Array.isArray(res) ? res : (res.data || []);
+                setRapports(rapportsData);
             } catch (error) {
-                console.error('Erreur chargement archives:', error);
+                console.error('Erreur chargement rapports:', error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchArchives();
+        fetchRapports();
     }, []);
 
     const years = useMemo(() => {
-        if (archives.length === 0) return [];
+        if (rapports.length === 0) return [];
         const yearsSet = new Set();
-        archives.forEach(archive => {
-            const year = new Date(archive.publishedAt || archive.createdAt).getFullYear();
+        rapports.forEach(rapport => {
+            const year = new Date(rapport.publishedAt || rapport.createdAt).getFullYear();
             yearsSet.add(year);
         });
         return Array.from(yearsSet).sort((a, b) => b - a);
-    }, [archives]);
+    }, [rapports]);
 
-    const featuredArchive = useMemo(() => archives.find(archive => archive.featured), [archives]);
+    const featuredRapport = useMemo(() => rapports.find(rapport => rapport.featured), [rapports]);
 
-    const filteredArchives = useMemo(() => {
-        let filtered = archives;
+    const filteredRapports = useMemo(() => {
+        let filtered = rapports;
         
-        if (featuredArchive) {
-            filtered = archives.filter(archive => archive._id !== featuredArchive._id);
+        if (featuredRapport) {
+            filtered = rapports.filter(rapport => rapport._id !== featuredRapport._id);
         }
         
         if (selectedYear !== 'Tous') {
-            filtered = filtered.filter(archive => {
-                const archiveYear = new Date(archive.publishedAt || archive.createdAt).getFullYear().toString();
-                return archiveYear === selectedYear;
+            filtered = filtered.filter(rapport => {
+                const rapportYear = new Date(rapport.publishedAt || rapport.createdAt).getFullYear().toString();
+                return rapportYear === selectedYear;
             });
         }
         
         return filtered;
-    }, [archives, selectedYear, featuredArchive]);
+    }, [rapports, selectedYear, featuredRapport]);
 
-    const totalPages = Math.ceil(filteredArchives.length / archivesPerPage);
-    const startIndex = (currentPage - 1) * archivesPerPage;
-    const currentArchives = filteredArchives.slice(startIndex, startIndex + archivesPerPage);
+    const totalPages = Math.ceil(filteredRapports.length / rapportsPerPage);
+    const startIndex = (currentPage - 1) * rapportsPerPage;
+    const currentRapports = filteredRapports.slice(startIndex, startIndex + rapportsPerPage);
 
     const handleYearChange = (year) => { setSelectedYear(year); setCurrentPage(1); };
     const handlePageChange = (page) => { setCurrentPage(page); window.scrollTo({ top: 0, behavior: 'smooth' }); };
@@ -143,7 +145,7 @@ const Archives = () => {
         e.preventDefault();
         e.stopPropagation();
         if (!fileUrl) return;
-        const fullUrl = fileUrl.startsWith('http') ? fileUrl : `${getBaseUrl()}${fileUrl}`;
+        const fullUrl = fileUrl.startsWith('http') ? fileUrl : getImageUrl(fileUrl); // ✅ getImageUrl utilisé ici aussi
         try {
             const response = await fetch(fullUrl);
             if (!response.ok) throw new Error('Erreur lors du téléchargement');
@@ -164,36 +166,36 @@ const Archives = () => {
 
     return (
         <PageBanner 
-            title="Nos rapports d'activités" 
+            title="Nos rapports" // ✅ Texte changé
             subtitle="Consultez nos rapports, documents et publications." 
             bgImage={bgImage} 
-            badge="Documents" 
-            badgeIcon={FileText}>
-
+            badge="Rapports" // ✅ Badge changé
+            badgeIcon={FileText}
+        >
             <SEO 
-                title="Nos archives"
-                description="Consultez les archives de l'AVSD RDC : rapports, documents officiels, publications et ressources sur nos actions humanitaires en RDC."
-                keywords="archives AVSD, rapports RDC, documents officiels, publications, ressources humanitaires"
-                url="/archives"
+                title="Nos rapports" // ✅ SEO changé
+                description="Consultez les rapports de l'AVSD RDC : rapports d'activités, documents officiels, publications et ressources sur nos actions humanitaires en RDC."
+                keywords="rapports AVSD, rapports RDC, documents officiels, publications, ressources humanitaires"
+                url="/rapports" // ✅ URL SEO changée
             />
             
             <section data-theme="light" className="py-16 sm:py-24">
                 <div className="container">
-                    {/* Article à la une */}
+                    {/* Rapport à la une */}
                     {loading ? (
                         <div className="mb-16">
                             <div className="relative h-[500px] bg-slate-200 rounded-2xl animate-pulse" />
                         </div>
-                    ) : featuredArchive && (
+                    ) : featuredRapport && (
                         <div className="mb-16">
-                            <ArchiveCard archive={featuredArchive} index={0} isFeatured={true} onDownload={handleDownload} />
+                            <RapportCard rapport={featuredRapport} index={0} isFeatured={true} onDownload={handleDownload} />
                         </div>
                     )}
 
                     {/* Filtres par année */}
                     <SectionTitle 
                         badge="Filtrer par année" 
-                        title="Parcourez nos archives" 
+                        title="Parcourez nos rapports" // ✅ Titre changé
                         description="Découvrez nos rapports et publications à travers les années." 
                     />
 
@@ -207,7 +209,7 @@ const Archives = () => {
                                         : 'bg-white text-gray-700 border border-gray-200 hover:border-brand-blue hover:text-brand-blue'
                                 }`}
                             >
-                                Toutes les archives
+                                Tous les rapports {/* ✅ Texte changé (masculin) */}
                             </button>
                             {years.map((year) => (
                                 <button 
@@ -225,18 +227,18 @@ const Archives = () => {
                         </div>
                     )}
 
-                    {/* Grille d'archives */}
+                    {/* Grille des rapports */}
                     {loading ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {[1, 2, 3, 4, 5, 6].map(i => (
                                 <div key={i} className="relative h-96 bg-slate-200 rounded-2xl animate-pulse" />
                             ))}
                         </div>
-                    ) : currentArchives.length > 0 ? (
+                    ) : currentRapports.length > 0 ? (
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {currentArchives.map((archive, index) => (
-                                    <ArchiveCard key={archive._id} archive={archive} index={index} onDownload={handleDownload} />
+                                {currentRapports.map((rapport, index) => (
+                                    <RapportCard key={rapport._id} rapport={rapport} index={index} onDownload={handleDownload} />
                                 ))}
                             </div>
 
@@ -276,7 +278,7 @@ const Archives = () => {
                     ) : (
                         <div className="text-center py-16">
                             <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                            <p className="text-gray-500 text-lg">Aucune archive trouvée pour cette année.</p>
+                            <p className="text-gray-500 text-lg">Aucun rapport trouvé pour cette année.</p> {/* ✅ Texte changé */}
                         </div>
                     )}
                 </div>
@@ -285,4 +287,4 @@ const Archives = () => {
     );
 };
 
-export default Archives;
+export default Rapports;
