@@ -10,7 +10,7 @@ export const statsData = [
     { 
         id: 1, 
         icon: Award, 
-        value: 12, 
+        value: 9, 
         suffix: '+', 
         label: "ANNÉES D'EXPÉRIENCE",
         description: "Au service des communautés depuis 2010"
