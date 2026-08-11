@@ -19,6 +19,7 @@ import Archives from './pages/Archives.jsx';
 import ArchiveDetail from './pages/ArchiveDetail.jsx';
 import Contact from './pages/Contact.jsx';
 import Error404 from './pages/Error404.jsx';
+import ScrollToTop from './components/ScrollToTop.jsx'
 
 // ===========================================
 // LAYOUT PRINCIPAL (avec Header et Footer)
@@ -42,6 +43,8 @@ function App() {
             {/* Schema.org pour l'organisation */}
             <SchemaMarkup type="organization" />
             <BrowserRouter>
+                {/* Composant pour forcer le scroll vers le haut à chaque changement de route */}
+                <ScrollToTop />
                 <Routes>
                     {/* Routes avec Header et Footer */}
                     <Route element={<MainLayout />}>
