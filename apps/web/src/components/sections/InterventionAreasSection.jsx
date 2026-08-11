@@ -62,7 +62,7 @@ const InterventionAreasSection = () => {
                 <div className="container">
                     <SectionTitle 
                         badge="Terrains"
-                        title="Nos milieux d'intervention"
+                        title="Nos zones d'intervention"
                         description="Découvrez les territoires où nos équipes agissent quotidiennement pour accompagner les communautés."
                     />
 
