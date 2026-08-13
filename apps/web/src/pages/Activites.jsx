@@ -4,7 +4,7 @@ import CTASection from '../components/sections/CTASection';
 import PartnersSection from '../components/sections/PartnersSection';
 import SEO from '../components/SEO';
 import { Target, Handshake, Heart } from 'lucide-react';
-import bgImage from '../assets/images/Caroussel/secondCarrous.jpg';
+import bgImage from '../assets/images/Hero/herobg.jpg';
 
 const Activites = () => {
     const activities = [

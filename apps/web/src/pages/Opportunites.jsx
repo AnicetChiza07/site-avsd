@@ -5,7 +5,7 @@ import SEO from '../components/SEO';
 import PageBanner from '../components/layouts/PageBanner';
 import SectionTitle from '../components/ui/SectionTitle';
 import SkeletonCard from '../components/ui/SkeletonCard';
-import bgImage from '../assets/images/Caroussel/Despistage.jpg';
+import bgImage from '../assets/images/Hero/Eau.jpg';
 import opportunityService from '../services/opportunityService';
 import { getBaseUrl } from '../services/api';
 

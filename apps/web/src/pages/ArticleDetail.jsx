@@ -20,7 +20,7 @@ const ArticleDetail = () => {
         
         return content.replace(
             /src=["']\/?(uploads\/[^"']+)["']/g,
-            (match, path) => {
+            (_match, path) => { // ✅ _match préfixé d'un underscore pour éviter le warning ESLint "no-unused-vars"
                 const fullUrl = `${getBaseUrl()}/${path}`;
                 return `src="${fullUrl}"`;
             }
@@ -32,17 +32,26 @@ const ArticleDetail = () => {
             try {
                 setLoading(true);
                 setError(false);
+                
+                // Récupération des articles et filtrage par slug (méthode fiable)
                 const res = await articleService.getArticles(1000);
-                const allArticles = res.data;
+                const allArticles = Array.isArray(res) ? res : (res.data || []);
                 const foundArticle = allArticles.find(a => a.slug === slug);
                 
-                if (!foundArticle) { setError(true); setLoading(false); return; }
+                if (!foundArticle) { 
+                    setError(true); 
+                    setLoading(false); 
+                    return; 
+                }
+                
                 setArticle(foundArticle);
                 
+                // Récupération des 4 articles les plus récents (hors article actuel)
                 const recent = allArticles
                     .filter(a => a._id !== foundArticle._id)
                     .sort((a, b) => new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt))
                     .slice(0, 4);
+                    
                 setRecentArticles(recent);
             } catch (err) {
                 console.error('Erreur chargement article:', err);
@@ -51,7 +60,10 @@ const ArticleDetail = () => {
                 setLoading(false);
             }
         };
-        fetchArticle();
+        
+        if (slug) {
+            fetchArticle();
+        }
     }, [slug]);
 
     const formatDate = (dateString) => {
@@ -64,6 +76,7 @@ const ArticleDetail = () => {
         return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
     };
 
+    // État de chargement (Skeleton)
     if (loading) {
         return (
             <>
@@ -97,6 +110,7 @@ const ArticleDetail = () => {
         );
     }
 
+    // État d'erreur ou article introuvable
     if (error || !article) {
         return (
             <section data-theme="light" className="pt-32 pb-16 min-h-screen flex items-center justify-center">
@@ -111,6 +125,7 @@ const ArticleDetail = () => {
         );
     }
 
+    // Affichage principal
     return (
         <>
             {/* SEO Dynamique pour chaque article */}
@@ -123,21 +138,19 @@ const ArticleDetail = () => {
             />
 
             {/* Schema.org pour les articles */}
-            {article && (
-                <SchemaMarkup 
-                    type="article" 
-                    data={{
-                        title: article.title,
-                        excerpt: article.excerpt,
-                        image: article.image ? getImageUrl(article.image) : undefined,
-                        publishedAt: article.publishedAt || article.createdAt,
-                        updatedAt: article.updatedAt,
-                        slug: article.slug
-                    }} 
-                />
-            )}
+            <SchemaMarkup 
+                type="article" 
+                data={{
+                    title: article.title,
+                    excerpt: article.excerpt,
+                    image: article.image ? getImageUrl(article.image) : undefined,
+                    publishedAt: article.publishedAt || article.createdAt,
+                    updatedAt: article.updatedAt,
+                    slug: article.slug
+                }} 
+            />
 
-            {/* Hero Section - Style identique aux autres pages */}
+            {/* Hero Section */}
             <section data-theme="dark" className="relative h-[60vh] flex items-end overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img 
@@ -191,12 +204,12 @@ const ArticleDetail = () => {
                                 </div>
                             )}
                             
-                            {/* NOUVEAU : Badge Auteur */}
+                            {/* Badge Auteur */}
                             {article.author && (
                                 <div className="flex items-center justify-center gap-2 pl-1 pr-3 py-1 bg-white/10 backdrop-blur-sm rounded-full border border-white/10">
                                     <div className="w-5 h-5 bg-brand-blue rounded-full flex items-center justify-center">
-                                        <span className="text-white text-[9px]">
-                                            {article.author.initials || 'AR'}
+                                        <span className="text-white text-[9px] font-bold">
+                                            {article.author.initials || 'AV'}
                                         </span>
                                     </div>
                                     <span className="font-medium text-white/90">
@@ -217,7 +230,7 @@ const ArticleDetail = () => {
                         {/* Colonne gauche - Contenu de l'article */}
                         <div className="lg:col-span-8">
                             
-                            {/* EXTRAIT STYLISÉ - Design distinctif */}
+                            {/* EXTRAIT STYLISÉ */}
                             {article.excerpt && (
                                 <div className="relative mb-12 p-8 bg-gradient-to-br from-blue-50/80 to-brand-blue/5 border-l-4 border-brand-blue rounded-r-2xl shadow-sm">
                                     {/* Icône de citation */}
@@ -279,6 +292,10 @@ const ArticleDetail = () => {
                                                     alt={recentArticle.title} 
                                                     loading="lazy"
                                                     className="w-full h-full object-cover"
+                                                    onError={(e) => {
+                                                        e.target.onerror = null;
+                                                        e.target.src = 'https://via.placeholder.com/100x100?text=Image';
+                                                    }}
                                                 />
                                             </div>
                                             <div className="flex-1 min-w-0">

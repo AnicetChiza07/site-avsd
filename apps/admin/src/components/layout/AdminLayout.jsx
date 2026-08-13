@@ -77,7 +77,7 @@ const AdminLayout = ({ children }) => {
                 { path: '/articles', label: 'Articles', icon: FileText },
                 { path: '/categories', label: 'Catégories', icon: Tag },
                 { path: '/opportunities', label: 'Opportunités', icon: Briefcase },
-                { path: '/archives', label: 'Archives', icon: FolderArchive },
+                { path: '/archives', label: 'Rapports', icon: FolderArchive },
                 { path: '/statistics', label: 'Statistiques', icon: BarChart3 },
             ]
         },
@@ -97,7 +97,7 @@ const AdminLayout = ({ children }) => {
         {
             title: 'ZONES D\'ACTION',
             items: [
-                { path: '/zones', label: 'Zones', icon: Map },
+                { path: '/zones', label: 'Nos actions en image', icon: Map },
                 { path: '/milieux', label: 'Milieux', icon: MapPin },
             ]
         },
