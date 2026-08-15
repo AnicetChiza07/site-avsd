@@ -19,7 +19,35 @@ const AdminLayout = ({ children }) => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState(null);
 
-    // Charger et écouter les changements d'avatar
+    // Correction du probleme de cache Safari (bfcache) et ecran blanc
+    useEffect(() => {
+        const handlePageShow = (event) => {
+            // Si la page est restauree depuis le cache du navigateur (bfcache)
+            if (event.persisted) {
+                window.location.reload();
+            }
+        };
+        
+        const handleVisibilityChange = () => {
+            // Force un rechargement si l'onglet redevient visible apres etre reste cache longtemps
+            if (document.visibilityState === 'visible') {
+                // On verifie si on vient d'un etat cache pour eviter les rechargements intempestifs
+                if (document.wasDiscarded || performance.navigation.type === PerformanceNavigation.TYPE_BACK_FORWARD) {
+                    window.location.reload();
+                }
+            }
+        };
+
+        window.addEventListener('pageshow', handlePageShow);
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('pageshow', handlePageShow);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
+    // Charger et ecouter les changements d'avatar
     useEffect(() => {
         const loadAvatar = () => {
             const adminData = JSON.parse(localStorage.getItem('admin') || '{}');
@@ -30,10 +58,8 @@ const AdminLayout = ({ children }) => {
             }
         };
         
-        // Charger au démarrage
         loadAvatar();
         
-        // Écouter les événements de mise à jour
         window.addEventListener('avatarUpdated', loadAvatar);
         window.addEventListener('storage', loadAvatar);
         
@@ -45,7 +71,7 @@ const AdminLayout = ({ children }) => {
 
     const handleLogout = () => {
         logout();
-        toast.info('Déconnexion réussie');
+        toast.info('Deconnexion reussie');
         navigate('/login');
     };
 
@@ -53,7 +79,6 @@ const AdminLayout = ({ children }) => {
         window.location.reload();
     };
 
-    // Fonction pour obtenir les initiales
     const getInitials = (name) => {
         if (!name) return 'AD';
         const names = name.split(' ');
@@ -63,7 +88,6 @@ const AdminLayout = ({ children }) => {
         return name.substring(0, 2).toUpperCase();
     };
 
-    // Menu de navigation organisé en sections
     const menuSections = [
         {
             title: 'VUE D\'ENSEMBLE',
@@ -75,14 +99,14 @@ const AdminLayout = ({ children }) => {
             title: 'CONTENUS',
             items: [
                 { path: '/articles', label: 'Articles', icon: FileText },
-                { path: '/categories', label: 'Catégories', icon: Tag },
-                { path: '/opportunities', label: 'Opportunités', icon: Briefcase },
-                { path: '/archives', label: 'Rapports', icon: FolderArchive },
+                { path: '/categories', label: 'Categories', icon: Tag },
+                { path: '/opportunities', label: 'Opportunites', icon: Briefcase },
+                { path: '/rapports', label: 'Rapports', icon: FolderArchive },
                 { path: '/statistics', label: 'Statistiques', icon: BarChart3 },
             ]
         },
         {
-            title: 'MÉDIAS',
+            title: 'MEDIAS',
             items: [
                 { path: '/gallery', label: 'Galerie', icon: Image },
             ]
@@ -107,14 +131,14 @@ const AdminLayout = ({ children }) => {
         const titles = {
             '/dashboard': 'Tableau de bord',
             '/articles': 'Gestion des articles',
-            '/categories': 'Catégories',
-            '/opportunities': 'Opportunités',
-            '/archives': 'Archives',
+            '/categories': 'Categories',
+            '/opportunities': 'Opportunites',
+            '/rapports': 'Rapports',
             '/statistics': 'Statistiques',
             '/gallery': 'Galerie',
             '/contacts': 'Messages',
             '/partners': 'Partenaires',
-            '/zones': 'Zones d\'intervention',
+            '/zones': 'Nos actions en image',
             '/milieux': 'Milieux d\'intervention',
             '/profile': 'Mon profil',
         };
@@ -199,7 +223,7 @@ const AdminLayout = ({ children }) => {
                     ))}
                 </nav>
 
-                {/* FOOTER SIDEBAR - Profil + Déconnexion (FIXE EN BAS) */}
+                {/* FOOTER SIDEBAR - Profil + Deconnexion (FIXE EN BAS) */}
                 <div className="flex-shrink-0 border-t border-gray-800 bg-gray-900">
                     {/* Profil cliquable */}
                     <Link 
@@ -229,14 +253,14 @@ const AdminLayout = ({ children }) => {
                         </div>
                     </Link>
                     
-                    {/* Bouton Déconnexion */}
+                    {/* Bouton Deconnexion */}
                     <div className="px-4 pb-4">
                         <button
                             onClick={handleLogout}
                             className="flex items-center gap-3 w-full px-3 py-2.5 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
                         >
                             <LogOut className="w-5 h-5" />
-                            <span className="font-medium text-sm">Déconnexion</span>
+                            <span className="font-medium text-sm">Deconnexion</span>
                         </button>
                     </div>
                 </div>
