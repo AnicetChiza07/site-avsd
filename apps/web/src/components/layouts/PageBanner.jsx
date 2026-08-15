@@ -15,7 +15,7 @@ const PageBanner = ({ title, subtitle, bgImage, badge = "Contact", badgeIcon: Ba
                         className="w-full h-full object-cover"
                     />
                     {/* Overlay sombre avec gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#030d12cc] via-[#030d12d2] to-[#030d12cc]" />
                 </div>
 
                 {/* Halos lumineux décoratifs */}

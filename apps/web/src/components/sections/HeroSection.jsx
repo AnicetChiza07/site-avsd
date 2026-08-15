@@ -41,7 +41,7 @@ const HeroSection = () => {
                         className="w-full h-full object-cover animate-zoom-bg" 
                     />
                     {/* Overlay dégradé sombre pour la lisibilité du texte */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-[#030d12f0] via-[#030d12e0] to-[#030d12f0]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#030d12cc] via-[#030d12a1] to-[#030d12cc]" />
                 </div>
 
                 {/* 2. Contenu principal */}

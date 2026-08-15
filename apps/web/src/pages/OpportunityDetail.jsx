@@ -134,7 +134,7 @@ const OpportunityDetail = () => {
                         loading="lazy"
                         className="w-full h-full object-cover" 
                     />
-                    <div className="absolute inset-0 bg-[#030d12]/95" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-[#030d12cc] via-[#030d12d2] to-[#030d12cc]" />
                 </div>
                 <div className="container relative z-10 pb-16">
                     <div className="max-w-5xl">
