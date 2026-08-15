@@ -24,7 +24,7 @@ import Zones from './pages/Zones';
 import Milieux from './pages/Milieux';
 import Profile from './pages/Profile';
 import Gallery from './pages/Gallery';
-import Archives from './pages/Archives';
+import Rapports from './pages/Rapports';
 
 // ===========================================
 // COMPOSANT DE PROTECTION DES ROUTES
@@ -106,11 +106,12 @@ const App = () => {
                         </ProtectedRoute>
                     } 
                 />
+
                 <Route 
-                    path="/archives" 
+                    path="/rapports" 
                     element={
                         <ProtectedRoute>
-                            <Archives />
+                            <Rapports />
                         </ProtectedRoute>
                     } 
                 />

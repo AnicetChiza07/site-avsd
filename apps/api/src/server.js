@@ -78,6 +78,23 @@ app.use('/uploads', (req, res, next) => {
 }, express.static('uploads'));
 
 // ===========================================
+// ✅ NOUVEAU : DÉSACTIVATION DU CACHE NAVIGATEUR
+// (Crucial pour éviter les écrans blancs sur Safari/macOS)
+// ===========================================
+app.use((req, res, next) => {
+    // Interdit au navigateur de stocker la réponse en cache
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    // Compatibilité avec les anciens navigateurs HTTP/1.0
+    res.setHeader('Pragma', 'no-cache');
+    // Indique que la ressource est immédiatement périmée
+    res.setHeader('Expires', '0');
+    // Pour les proxies CDN (comme Cloudflare si tu en utilises un)
+    res.setHeader('Surrogate-Control', 'no-store');
+    
+    next();
+});
+
+// ===========================================
 // ROUTES DE TEST
 // ===========================================
 
