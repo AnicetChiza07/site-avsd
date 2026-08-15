@@ -1,15 +1,16 @@
-// ===========================================
-// CONFIGURATION DES ROUTES - APP PRINCIPALE
-// ===========================================
-
-import { useContext } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // Contexte d'authentification
-import { AuthContext } from './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
+
+// Composant utilitaire de sécurité
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+// Layout principal de l'admin
+import AdminLayout from './components/layout/AdminLayout';
 
 // Pages
 import Login from './pages/Login';
@@ -17,183 +18,182 @@ import Dashboard from './pages/Dashboard';
 import Articles from './pages/Articles';
 import Categories from './pages/Categories';
 import Opportunities from './pages/Opportunities';
+import Rapports from './pages/Rapports';
 import Statistics from './pages/Statistics';
+import Gallery from './pages/Gallery';
 import Contacts from './pages/Contacts';
 import Partners from './pages/Partners';
 import Zones from './pages/Zones';
 import Milieux from './pages/Milieux';
 import Profile from './pages/Profile';
-import Gallery from './pages/Gallery';
-import Rapports from './pages/Rapports';
 
 // ===========================================
-// COMPOSANT DE PROTECTION DES ROUTES
+// APPLICATION PRINCIPALE
 // ===========================================
-const ProtectedRoute = ({ children }) => {
-    const { admin, loading } = useContext(AuthContext);
-
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <Loader2 className="w-10 h-10 animate-spin text-brand-blue mx-auto mb-4" />
-                    <p className="text-gray-500 text-sm">Chargement de la session...</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (!admin) {
-        return <Navigate to="/login" replace />;
-    }
-
-    return children;
-};
-
-// ===========================================
-// COMPOSANT PRINCIPAL
-// ===========================================
-const App = () => {
-    const { admin } = useContext(AuthContext);
-
+function App() {
     return (
-        <>
-            <Routes>
-                {/* Route de connexion */}
-                <Route 
-                    path="/login" 
-                    element={admin ? <Navigate to="/dashboard" replace /> : <Login />} 
-                />
+        <AuthProvider>
+            <BrowserRouter>
+                {/* ErrorBoundary : filet de sécurité global */}
+                <ErrorBoundary>
+                    <Routes>
+                        {/* Route publique */}
+                        <Route path="/login" element={<Login />} />
+                        
+                        {/* Redirection par défaut vers le dashboard */}
+                        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-                {/* Routes protégées */}
-                <Route 
-                    path="/" 
-                    element={
-                        <ProtectedRoute>
-                            <Navigate to="/dashboard" replace />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/dashboard" 
-                    element={
-                        <ProtectedRoute>
-                            <Dashboard />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/articles" 
-                    element={
-                        <ProtectedRoute>
-                            <Articles />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/categories" 
-                    element={
-                        <ProtectedRoute>
-                            <Categories />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/opportunities" 
-                    element={
-                        <ProtectedRoute>
-                            <Opportunities />
-                        </ProtectedRoute>
-                    } 
-                />
+                        {/* Routes protégées avec AdminLayout */}
+                        <Route 
+                            path="/dashboard" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Dashboard />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/articles" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Articles />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/categories" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Categories />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/opportunities" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Opportunities />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/rapports" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Rapports />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/statistics" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Statistics />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/gallery" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Gallery />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/contacts" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Contacts />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/partners" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Partners />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/zones" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Zones />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/milieux" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Milieux />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
+                        
+                        <Route 
+                            path="/profile" 
+                            element={
+                                <ProtectedRoute>
+                                    <AdminLayout>
+                                        <Profile />
+                                    </AdminLayout>
+                                </ProtectedRoute>
+                            } 
+                        />
 
-                <Route 
-                    path="/rapports" 
-                    element={
-                        <ProtectedRoute>
-                            <Rapports />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/statistics" 
-                    element={
-                        <ProtectedRoute>
-                            <Statistics />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/contacts" 
-                    element={
-                        <ProtectedRoute>
-                            <Contacts />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/partners" 
-                    element={
-                        <ProtectedRoute>
-                            <Partners />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/zones" 
-                    element={
-                        <ProtectedRoute>
-                            <Zones />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/milieux" 
-                    element={
-                        <ProtectedRoute>
-                            <Milieux />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/profile" 
-                    element={
-                        <ProtectedRoute>
-                            <Profile />
-                        </ProtectedRoute>
-                    } 
-                />
-                <Route 
-                    path="/gallery" 
-                    element={
-                        <ProtectedRoute>
-                            <Gallery />
-                        </ProtectedRoute>
-                    } 
-                />
+                        {/* Redirection pour toute route non trouvée */}
+                        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                    </Routes>
+                </ErrorBoundary>
 
-                {/* Route 404 */}
-                <Route 
-                    path="*" 
-                    element={<Navigate to="/" replace />} 
+                {/* Notifications toast globales */}
+                <ToastContainer 
+                    position="top-right"
+                    autoClose={3000}
+                    hideProgressBar={false}
+                    newestOnTop
+                    closeOnClick
+                    pauseOnHover
+                    theme="colored"
                 />
-            </Routes>
-
-            {/* Toast Container */}
-            <ToastContainer 
-                position="top-right"
-                autoClose={5000}      
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick={false} 
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover         
-                theme="colored"
-            />
-        </>
+            </BrowserRouter>
+        </AuthProvider>
     );
-};
+}
 
 export default App;
